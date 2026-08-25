@@ -72,7 +72,7 @@ const units = {
     { ru: "стоп", en: "stop", type: "noun" },
     { ru: "улица", en: "street", type: "noun" },
     { ru: "супермаркет", en: "supermarket", type: "noun" },
-    { ru: "кассета", en: "tape", type: "noun" },
+    { ru: "кассета второй", en: "tape", type: "noun" },
     { ru: "такси", en: "taxi", type: "noun" },
     { ru: "телевизор (ТВ)", en: "television (TV)", type: "noun" },
     { ru: "десять", en: "ten", type: "other" },
