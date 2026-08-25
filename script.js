@@ -16,74 +16,74 @@
 
 const units = {
 
-1: [
-  { ru: "Введение", en: "Introduction", type: "noun" },
-  { ru: "телефон", en: "(tele)phone", type: "noun" },
-  { ru: "и", en: "and", type: "other" },
-  { ru: "мебель", en: "bear", type: "noun" },
-  { ru: "бой барабанов", en: "beat", type: "noun" },
-  { ru: "книга", en: "book", type: "noun" },
-  { ru: "мальчик", en: "boy", type: "noun" },
-  { ru: "буфет", en: "buffet", type: "noun" },
-  { ru: "гамбургер", en: "burger", type: "noun" },
-  { ru: "автобус", en: "bus", type: "noun" },
-  { ru: "кафе", en: "cafe", type: "noun" },
-  { ru: "калькулятор", en: "calculator", type: "noun" },
-  { ru: "фотоаппарат", en: "camera", type: "noun" },
-  { ru: "кассета", en: "cassette", type: "noun" },
-  { ru: "кофе", en: "coffee", type: "noun" },
-  { ru: "компьютер", en: "computer", type: "noun" },
-  { ru: "диск", en: "disk", type: "noun" },
-  { ru: "электроника", en: "electronics", type: "noun" },
-  { ru: "английский", en: "English", type: "adjective" },
-  { ru: "потрясающе", en: "fantastic", type: "adjective" },
-  { ru: "быстрая перемотка вперед", en: "fwd (fast forward)", type: "other" },
-  { ru: "пленка", en: "film", type: "noun" },
-  { ru: "находить", en: "find", type: "verb" },
-  { ru: "футбол (американский)", en: "football", type: "noun" },
-  { ru: "хорошо", en: "good", type: "adjective" },
-  { ru: "булочка с котлетой, гамбургер", en: "hamburger", type: "noun" },
-  { ru: "вертолет", en: "helicopter", type: "noun" },
-  { ru: "булочка с сосиской, хот дог", en: "hot dog", type: "noun" },
-  { ru: "джинсы", en: "jeans", type: "noun" },
-  { ru: "реактивный самолет", en: "jet", type: "noun" },
-  { ru: "язык", en: "language", type: "noun" },
-  { ru: "главный", en: "main", type: "adjective" },
-  { ru: "подбирать", en: "match", type: "verb" },
-  { ru: "более, больше", en: "more", type: "other" },
-  { ru: "мой, моя, мое", en: "my", type: "other" },
-  { ru: "Оксфорд", en: "Oxford", type: "noun" },
-  { ru: "картинка", en: "picture", type: "noun" },
-  { ru: "пища", en: "pizza", type: "noun" },
-  { ru: "проигрывание", en: "play", type: "noun" },
-  { ru: "полиция", en: "police", type: "noun" },
-  { ru: "полицейский", en: "police officer", type: "noun" },
-  { ru: "нажимать", en: "press", type: "verb" },
-  { ru: "радио", en: "radio", type: "noun" },
-  { ru: "запись", en: "record", type: "noun" },
-  { ru: "ресторан", en: "restaurant", type: "noun" },
-  { ru: "перемотка назад", en: "rew (rewind)", type: "other" },
-  { ru: "рок (музыка)", en: "rock", type: "noun" },
-  { ru: "продажа", en: "sale", type: "noun" },
-  { ru: "бутерброд, сэндвич", en: "sandwich", type: "noun" },
-  { ru: "спутник", en: "satellite", type: "noun" },
-  { ru: "спорт", en: "sports", type: "noun" },
-  { ru: "квадрат", en: "square", type: "noun" },
-  { ru: "стоп", en: "stop", type: "noun" },
-  { ru: "улица", en: "street", type: "noun" },
-  { ru: "супермаркет", en: "supermarket", type: "noun" },
-  { ru: "кассета", en: "tape", type: "noun" },
-  { ru: "такси", en: "taxi", type: "noun" },
-  { ru: "телевизор (ТВ)", en: "television (TV)", type: "noun" },
-  { ru: "десять", en: "ten", type: "other" },
-  { ru: "теннис", en: "tennis", type: "noun" },
-  { ru: "театр", en: "theater", type: "noun" },
-  { ru: "очень хорошо", en: "very good", type: "phrase" },
-  { ru: "видео", en: "video", type: "noun" },
-  { ru: "слово", en: "word", type: "noun" },
-  { ru: "писать", en: "write", type: "verb" },
-  { ru: "изменение масштаба изображения", en: "zoom", type: "noun" }
-],
+  1: [
+    { ru: "Введение", en: "Introduction", type: "noun" },
+    { ru: "телефон", en: "(tele)phone", type: "noun" },
+    { ru: "и", en: "and", type: "other" },
+    { ru: "мебель", en: "bear", type: "noun" },
+    { ru: "бой барабанов", en: "beat", type: "noun" },
+    { ru: "книга", en: "book", type: "noun" },
+    { ru: "мальчик", en: "boy", type: "noun" },
+    { ru: "буфет", en: "buffet", type: "noun" },
+    { ru: "гамбургер", en: "burger", type: "noun" },
+    { ru: "автобус", en: "bus", type: "noun" },
+    { ru: "кафе", en: "cafe", type: "noun" },
+    { ru: "калькулятор", en: "calculator", type: "noun" },
+    { ru: "фотоаппарат", en: "camera", type: "noun" },
+    { ru: "кассета", en: "cassette", type: "noun" },
+    { ru: "кофе", en: "coffee", type: "noun" },
+    { ru: "компьютер", en: "computer", type: "noun" },
+    { ru: "диск", en: "disk", type: "noun" },
+    { ru: "электроника", en: "electronics", type: "noun" },
+    { ru: "английский", en: "English", type: "adjective" },
+    { ru: "потрясающе", en: "fantastic", type: "adjective" },
+    { ru: "быстрая перемотка вперед", en: "fwd (fast forward)", type: "other" },
+    { ru: "пленка", en: "film", type: "noun" },
+    { ru: "находить", en: "find", type: "verb" },
+    { ru: "футбол (американский)", en: "football", type: "noun" },
+    { ru: "хорошо", en: "good", type: "adjective" },
+    { ru: "булочка с котлетой, гамбургер", en: "hamburger", type: "noun" },
+    { ru: "вертолет", en: "helicopter", type: "noun" },
+    { ru: "булочка с сосиской, хот дог", en: "hot dog", type: "noun" },
+    { ru: "джинсы", en: "jeans", type: "noun" },
+    { ru: "реактивный самолет", en: "jet", type: "noun" },
+    { ru: "язык", en: "language", type: "noun" },
+    { ru: "главный", en: "main", type: "adjective" },
+    { ru: "подбирать", en: "match", type: "verb" },
+    { ru: "более, больше", en: "more", type: "other" },
+    { ru: "мой, моя, мое", en: "my", type: "other" },
+    { ru: "Оксфорд", en: "Oxford", type: "noun" },
+    { ru: "картинка", en: "picture", type: "noun" },
+    { ru: "пища", en: "pizza", type: "noun" },
+    { ru: "проигрывание", en: "play", type: "noun" },
+    { ru: "полиция", en: "police", type: "noun" },
+    { ru: "полицейский", en: "police officer", type: "noun" },
+    { ru: "нажимать", en: "press", type: "verb" },
+    { ru: "радио", en: "radio", type: "noun" },
+    { ru: "запись", en: "record", type: "noun" },
+    { ru: "ресторан", en: "restaurant", type: "noun" },
+    { ru: "перемотка назад", en: "rew (rewind)", type: "other" },
+    { ru: "рок (музыка)", en: "rock", type: "noun" },
+    { ru: "продажа", en: "sale", type: "noun" },
+    { ru: "бутерброд, сэндвич", en: "sandwich", type: "noun" },
+    { ru: "спутник", en: "satellite", type: "noun" },
+    { ru: "спорт", en: "sports", type: "noun" },
+    { ru: "квадрат", en: "square", type: "noun" },
+    { ru: "стоп", en: "stop", type: "noun" },
+    { ru: "улица", en: "street", type: "noun" },
+    { ru: "супермаркет", en: "supermarket", type: "noun" },
+    { ru: "кассета", en: "tape", type: "noun" },
+    { ru: "такси", en: "taxi", type: "noun" },
+    { ru: "телевизор (ТВ)", en: "television (TV)", type: "noun" },
+    { ru: "десять", en: "ten", type: "other" },
+    { ru: "теннис", en: "tennis", type: "noun" },
+    { ru: "театр", en: "theater", type: "noun" },
+    { ru: "очень хорошо", en: "very good", type: "phrase" },
+    { ru: "видео", en: "video", type: "noun" },
+    { ru: "слово", en: "word", type: "noun" },
+    { ru: "писать", en: "write", type: "verb" },
+    { ru: "изменение масштаба изображения", en: "zoom", type: "noun" }
+  ],
 
   2: [
     { ru: "ответ", en: "answer", type: "noun" },
@@ -355,10 +355,22 @@ function startTrainer() {
     ...units[selectedUnit]
   ];
 
-  // Перемешиваем
-  cards.sort(
-    () => Math.random() - 0.5
-  );
+  // Перемешиваем слова
+  // Каждый запуск Unit получает новый порядок
+  for (let i = cards.length - 1; i > 0; i--) {
+
+    const randomIndex =
+      Math.floor(Math.random() * (i + 1));
+
+    [
+      cards[i],
+      cards[randomIndex]
+    ] = [
+      cards[randomIndex],
+      cards[i]
+    ];
+
+  }
 
   currentIndex = 0;
 
@@ -391,6 +403,12 @@ function startTrainer() {
 function showCard() {
 
   locked = false;
+
+  // Сбрасываем результат предыдущей карточки
+  flashcard.classList.remove(
+    "answer-correct",
+    "answer-wrong"
+  );
 
   // Убираем переворот
   flashcard.classList.remove(
@@ -473,8 +491,7 @@ function showCard() {
   );
 
 
-
-    // Фокус автоматически только на компьютере.
+  // Фокус автоматически только на компьютере.
   // На телефоне клавиатура открывается только после
   // нажатия пользователя на поле.
   if (!window.matchMedia("(max-width: 750px)").matches) {
@@ -488,6 +505,9 @@ function showCard() {
 }
 
 
+// ==============================
+// ПРОВЕРКА ОТВЕТА
+// ==============================
 
 function checkAnswer(event) {
 
@@ -526,6 +546,15 @@ function checkAnswer(event) {
   ) {
 
     locked = true;
+
+    // ЗЕЛЁНАЯ РАМКА
+    flashcard.classList.remove(
+      "answer-wrong"
+    );
+
+    flashcard.classList.add(
+      "answer-correct"
+    );
 
     score++;
 
@@ -583,6 +612,15 @@ function checkAnswer(event) {
   else {
 
     locked = true;
+
+    // КРАСНАЯ РАМКА
+    flashcard.classList.remove(
+      "answer-correct"
+    );
+
+    flashcard.classList.add(
+      "answer-wrong"
+    );
 
 
     feedback.textContent =
