@@ -32,32 +32,22 @@ html {
   min-height: 100%;
 }
 
-body {
-  margin: 0;
-
-  width: 100%;
-  min-height: 100vh;
-  min-height: 100dvh;
-
-  background:
-    radial-gradient(
-      circle at 50% -10%,
-      #1a2742 0,
-      transparent 40%
-    ),
-    var(--bg);
-
-  color: var(--text);
-
-  font-family:
-    Inter,
-    Arial,
-    sans-serif;
-
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+html, body {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
 }
 
+/* Фикс для предотвращения вылета карточки наверх */
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start !important;
+  padding-top: 16px;
+}
+html, body {
+  min-height: 100%;
+  overflow-y: auto; /* позволяет скроллить контент, когда открыта клавиатура */
+}
 
 button,
 input {
