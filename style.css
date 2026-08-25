@@ -1129,3 +1129,33 @@ h2 {
   }
 
 }
+/* ==================================================
+   📱 ФИКС КЛАВИАТУРЫ
+================================================== */
+
+@media (max-width: 750px) {
+
+  .trainer {
+    overflow: hidden;
+  }
+
+  .trainer-content {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .flashcard {
+    flex-shrink: 0;
+    transform: translateZ(0);
+  }
+
+  .answer-form {
+    flex-shrink: 0;
+  }
+
+  .answer-form input {
+    scroll-margin-top: 20px;
+    scroll-margin-bottom: 20px;
+  }
+
+}
