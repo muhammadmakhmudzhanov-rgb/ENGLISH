@@ -54,7 +54,7 @@ const units = {
     { ru: "мой, моя, мое", en: "my", type: "other" },
     { ru: "Оксфорд", en: "Oxford", type: "noun" },
     { ru: "картинка", en: "picture", type: "noun" },
-    { ru: "пища", en: "pizza", type: "noun" },
+    { ru: "пица", en: "pizza", type: "noun" },
     { ru: "проигрывание", en: "play", type: "noun" },
     { ru: "полиция", en: "police", type: "noun" },
     { ru: "полицейский", en: "police officer", type: "noun" },
