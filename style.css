@@ -897,11 +897,12 @@ h2 {
 
   /* Основная область */
 
+  /* Основная область */
+
   .trainer-content {
-    min-height:
-      calc(
-        100dvh - 75px
-      );
+    min-height: calc(100dvh - 75px);
+
+    height: auto;
 
     margin-top: 0;
 
@@ -915,8 +916,11 @@ h2 {
         )
       );
 
-    justify-content:
-      flex-start;
+    justify-content: flex-start;
+
+    overflow-y: auto;
+
+    position: relative;
   }
 
   .type-label {
@@ -930,16 +934,16 @@ h2 {
 
   /* Карточка */
 
+  /* Карточка */
+
   .flashcard {
     width: 100%;
 
-    height:
-      min(
-        53dvh,
-        370px
-      );
+    height: 300px;
+    min-height: 300px;
+    max-height: 300px;
 
-    min-height: 260px;
+    flex-shrink: 0;
 
     margin:
       8px

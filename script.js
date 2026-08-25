@@ -473,12 +473,17 @@ function showCard() {
   );
 
 
-  // Фокус на поле
-  setTimeout(() => {
 
-    answerInput.focus();
+    // Фокус автоматически только на компьютере.
+  // На телефоне клавиатура открывается только после
+  // нажатия пользователя на поле.
+  if (!window.matchMedia("(max-width: 750px)").matches) {
 
-  }, 100);
+    setTimeout(() => {
+      answerInput.focus();
+    }, 100);
+
+  }
 
 }
 
