@@ -904,7 +904,7 @@ h2 {
 
   .trainer-content {
     min-height: calc(100dvh - 75px);
-
+    position: sticky;
     height: auto;
 
     margin-top: 0;
