@@ -32,17 +32,30 @@ html {
   min-height: 100%;
 }
 
-html, body {
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Фикс для предотвращения вылета карточки наверх */
 body {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start !important;
-  padding-top: 16px;
+  margin: 0;
+
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      #1a2742 0,
+      transparent 40%
+    ),
+    var(--bg);
+
+  color: var(--text);
+
+  font-family:
+    Inter,
+    Arial,
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 html, body {
   min-height: 100%;
@@ -853,6 +866,26 @@ h2 {
 
   /* Верх тренажёра */
 
+  .trainer-top {
+    width: 100%;
+
+    padding:
+      max(
+        12px,
+        env(
+          safe-area-inset-top
+        )
+      )
+      14px
+      12px;
+
+    grid-template-columns:
+      62px
+      1fr
+      48px;
+
+    gap: 8px;
+  }
 
   .back-btn {
     font-size: 13px;
@@ -869,7 +902,29 @@ h2 {
 
   /* Основная область */
 
+  .trainer-content {
+    min-height: calc(100dvh - 75px);
 
+    height: auto;
+
+    margin-top: 0;
+
+    padding:
+      10px
+      14px
+      max(
+        25px,
+        env(
+          safe-area-inset-bottom
+        )
+      );
+
+    justify-content: flex-start;
+
+    overflow-y: auto;
+
+    position: relative;
+  }
 
   .type-label {
     margin:
@@ -884,87 +939,71 @@ h2 {
 
   /* Карточка */
 
-
-
-
-
-
-
-  /* Поле */
-
-
-body {
-    min-height: 100dvh;
-  }
-
-  /* Меняем fixed на absolute, чтобы экран мог нормально прокручиваться */
-  .trainer {
-    position: absolute;
-    inset: 0;
-    min-height: 100dvh;
-    height: auto;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .trainer-top {
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    background: var(--bg);
-    width: 100%;
-    padding: max(12px, env(safe-area-inset-top)) 14px 12px;
-    grid-template-columns: 62px 1fr 48px;
-    gap: 8px;
-  }
-
-  /* Компактная карточка, которая не вылезает при открытии клавиатуры */
   .flashcard {
     width: 100%;
-    height: 220px;
-    min-height: 220px;
-    max-height: 220px;
-    flex-shrink: 0;
-    margin: 8px 0 14px;
-  }
 
-  .trainer-content {
-    min-height: auto;
-    height: auto;
-    margin-top: 0;
-    padding: 10px 14px max(25px, env(safe-area-inset-bottom));
-    justify-content: flex-start;
-    overflow: visible;
+    height: 300px;
+    min-height: 300px;
+    max-height: 300px;
+
+    flex-shrink: 0;
+
+    margin:
+      8px
+      0
+      18px;
   }
 
   .card-face {
-    border-radius: 20px;
-    padding: 16px;
+    border-radius: 25px;
+
+    padding:
+      24px
+      18px;
   }
 
   .russian-word,
   .english-word {
-    font-size: clamp(28px, 8vw, 42px);
+    font-size:
+      clamp(
+        38px,
+        12vw,
+        62px
+      );
+
+    max-width: 95%;
   }
+
+
+  /* Поле */
 
   .answer-form {
     width: 100%;
+
     flex-direction: column;
+
     gap: 9px;
   }
 
   .answer-form input {
     width: 100%;
-    min-height: 50px;
-    border-radius: 14px;
-    padding: 14px;
-    font-size: 16px; /* 16px предотвращает авто-зум в Safari на iOS */
+
+    min-height: 56px;
+
+    border-radius: 16px;
+
+    padding: 16px;
+
+    font-size: 17px;
   }
 
   .answer-form button {
     width: 100%;
-    min-height: 48px;
-    border-radius: 14px;
+
+    min-height: 54px;
+
+    border-radius: 16px;
+
     font-size: 16px;
   }
 
