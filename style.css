@@ -1,0 +1,1127 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #0b0d12;
+  --panel: #121620;
+  --panel-2: #181d29;
+
+  --text: #f5f7fb;
+  --muted: #8d96a8;
+
+  --line: #252c3a;
+
+  --accent: #6ea8ff;
+
+  --pink: #ff91b8;
+  --blue: #7db7ff;
+  --yellow: #ffe38a;
+  --green: #8be3ad;
+
+  --white-card: #f5f7fb;
+}
+
+
+/* =========================
+   ОСНОВА
+========================= */
+
+html {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      #1a2742 0,
+      transparent 40%
+    ),
+    var(--bg);
+
+  color: var(--text);
+
+  font-family:
+    Inter,
+    Arial,
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+
+/* =========================
+   ГЛАВНАЯ
+========================= */
+
+.app {
+  width: min(1100px, 92%);
+  margin: 0 auto;
+
+  padding:
+    40px
+    0
+    60px;
+}
+
+.hero {
+  margin-bottom: 50px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+
+  color: var(--accent);
+
+  font-size: 12px;
+  font-weight: 800;
+
+  letter-spacing: 2px;
+}
+
+h1 {
+  margin: 0;
+
+  font-size: clamp(
+    40px,
+    6vw,
+    68px
+  );
+
+  line-height: .95;
+}
+
+.subtitle {
+  color: var(--muted);
+
+  max-width: 600px;
+
+  line-height: 1.6;
+
+  margin-top: 18px;
+}
+
+h2 {
+  font-size: 28px;
+
+  margin:
+    0
+    0
+    22px;
+}
+
+
+/* =========================
+   UNIT
+========================= */
+
+.unit-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, 1fr);
+
+  gap: 14px;
+}
+
+.unit-card {
+  min-height: 150px;
+
+  border:
+    1px solid
+    var(--line);
+
+  background:
+    linear-gradient(
+      145deg,
+      #151a25,
+      #10131b
+    );
+
+  border-radius: 22px;
+
+  color: var(--text);
+
+  text-align: left;
+
+  padding: 24px;
+
+  transition:
+    transform .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.unit-card:hover {
+  transform: translateY(-5px);
+
+  border-color: #3d4c67;
+
+  box-shadow:
+    0 15px 40px #0007;
+}
+
+.unit-number {
+  font-size: 13px;
+
+  color: green;
+
+  font-weight: 800;
+}
+
+.unit-name {
+  display: block;
+  color: rgb(255, 255, 255);
+  font-size: 28px;
+
+  font-weight: 800;
+
+  margin-top: 45px;
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+.modal {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 100;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 18px;
+
+  background: #000b;
+
+  backdrop-filter:
+    blur(10px);
+}
+
+.modal-box {
+  position: relative;
+
+  width:
+    min(
+      430px,
+      100%
+    );
+
+  background: var(--panel);
+
+  border:
+    1px solid
+    var(--line);
+
+  border-radius: 28px;
+
+  padding: 38px;
+
+  box-shadow:
+    0 30px 100px #000b;
+}
+
+.modal-box h2 {
+  font-size: 42px;
+}
+
+.modal-box p:not(.eyebrow) {
+  color: var(--muted);
+
+  line-height: 1.5;
+}
+
+.close-btn {
+  position: absolute;
+
+  right: 18px;
+  top: 15px;
+
+  border: 0;
+
+  background: transparent;
+
+  color: var(--muted);
+
+  font-size: 30px;
+
+  width: 45px;
+  height: 45px;
+}
+
+
+/* =========================
+   КНОПКИ
+========================= */
+
+.primary-btn,
+.secondary-btn {
+  width: 100%;
+
+  border: 0;
+
+  border-radius: 14px;
+
+  padding: 15px 20px;
+
+  font-weight: 800;
+}
+
+.primary-btn {
+  background: var(--accent);
+
+  color: #07101e;
+}
+
+.secondary-btn {
+  margin-top: 10px;
+
+  background: #202634;
+
+  color: var(--text);
+}
+
+.hidden {
+  display: none !important;
+}
+
+
+/* =========================
+   ТРЕНАЖЁР
+========================= */
+
+.trainer {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 10;
+
+  background: var(--bg);
+
+  overflow-y: auto;
+}
+
+.trainer-top {
+  width:
+    min(
+      1000px,
+      92%
+    );
+
+  margin: 0 auto;
+
+  padding: 24px 0;
+
+  display: grid;
+
+  grid-template-columns:
+    130px
+    1fr
+    80px;
+
+  align-items: center;
+
+  gap: 25px;
+}
+
+.back-btn {
+  border: 0;
+
+  background: transparent;
+
+  color: var(--muted);
+
+  text-align: left;
+}
+
+.progress-wrap {
+  text-align: center;
+}
+
+.progress-wrap span {
+  display: block;
+
+  color: var(--muted);
+
+  font-size: 13px;
+
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  height: 5px;
+
+  border-radius: 99px;
+
+  background: #202532;
+
+  overflow: hidden;
+}
+
+#progressFill {
+  height: 100%;
+
+  width: 0;
+
+  background: var(--accent);
+
+  transition:
+    width .3s ease;
+}
+
+.score {
+  text-align: right;
+
+  color: var(--green);
+
+  font-weight: 800;
+}
+
+
+/* =========================
+   КОНТЕНТ
+========================= */
+
+.trainer-content {
+  min-height:
+    calc(
+      100vh - 90px
+    );
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  margin-top: -40px;
+}
+
+.type-label {
+  color: var(--muted);
+
+  font-size: 13px;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 1.5px;
+}
+
+
+/* =========================
+   КАРТОЧКА
+========================= */
+
+.flashcard {
+  width:
+    min(
+      560px,
+      90vw
+    );
+
+  height: 350px;
+
+  perspective: 1200px;
+
+  margin:
+    10px
+    0
+    25px;
+}
+
+.card-inner {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  transition:
+    transform .48s
+    cubic-bezier(
+      .2,
+      .75,
+      .25,
+      1
+    );
+
+  transform-style: preserve-3d;
+}
+
+.flashcard.flipped
+.card-inner {
+  transform:
+    rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+
+  inset: 0;
+
+  border-radius: 30px;
+
+  backface-visibility: hidden;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 30px;
+
+  box-shadow:
+    0 25px 70px #0008;
+}
+
+.card-front {
+  color: #111;
+}
+
+.card-back {
+  background:
+    var(--white-card);
+
+  color: #111;
+
+  transform:
+    rotateY(180deg);
+}
+
+.card-type {
+  position: absolute;
+
+  top: 25px;
+  left: 25px;
+
+  font-size: 12px;
+
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.russian-word {
+  font-size:
+    clamp(
+      38px,
+      7vw,
+      66px
+    );
+
+  font-weight: 900;
+
+  overflow-wrap: anywhere;
+}
+
+.card-help,
+.translation {
+  margin-top: 18px;
+
+  opacity: .6;
+}
+
+.english-word {
+  font-size:
+    clamp(
+      40px,
+      7vw,
+      68px
+    );
+
+  font-weight: 900;
+
+  overflow-wrap: anywhere;
+}
+
+.correct-label {
+  color: #159447;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+
+  margin-bottom: 15px;
+}
+
+
+/* =========================
+   ОТВЕТ ПОЛЬЗОВАТЕЛЯ
+========================= */
+
+.user-answer-shown {
+  margin-top: 16px;
+
+  font-size: 15px;
+
+  font-weight: 800;
+
+  color: #c13f50;
+
+  max-width: 90%;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================
+   ПОЛЕ ОТВЕТА
+========================= */
+
+.answer-form {
+  width:
+    min(
+      560px,
+      90vw
+    );
+
+  display: flex;
+
+  gap: 10px;
+}
+
+.answer-form input {
+  min-width: 0;
+
+  flex: 1;
+
+  border:
+    1px solid
+    var(--line);
+
+  background:
+    var(--panel);
+
+  color: var(--text);
+
+  border-radius: 14px;
+
+  padding: 16px;
+
+  outline: none;
+}
+
+.answer-form input:focus {
+  border-color:
+    var(--accent);
+}
+
+.answer-form button {
+  border: 0;
+
+  border-radius: 14px;
+
+  padding:
+    0
+    22px;
+
+  background:
+    var(--accent);
+
+  color: #07101e;
+
+  font-weight: 800;
+}
+
+
+/* =========================
+   СООБЩЕНИЕ
+========================= */
+
+.feedback {
+  min-height: 28px;
+
+  margin-top: 12px;
+
+  font-weight: 700;
+
+  text-align: center;
+}
+
+.feedback.wrong {
+  color: #ff7e8e;
+}
+
+.feedback.correct {
+  color: var(--green);
+}
+
+
+/* =========================
+   КНОПКА ДАЛЕЕ
+========================= */
+
+.next-btn {
+  width:
+    min(
+      560px,
+      90vw
+    );
+
+  min-height: 54px;
+
+  margin-top: 5px;
+
+  border: 0;
+
+  border-radius: 15px;
+
+  background:
+    var(--white-card);
+
+  color: #111;
+
+  font-weight: 900;
+
+  font-size: 16px;
+
+  transition:
+    transform .15s ease;
+}
+
+.next-btn:active {
+  transform: scale(.98);
+}
+
+
+/* =========================
+   ФИНИШ
+========================= */
+
+.finish-screen {
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: center;
+
+  text-align: center;
+
+  padding: 25px;
+
+  background: var(--bg);
+}
+
+.finish-icon {
+  width: 90px;
+  height: 90px;
+
+  border-radius: 50%;
+
+  display: grid;
+
+  place-items: center;
+
+  background: #183b2a;
+
+  color: var(--green);
+
+  font-size: 45px;
+
+  margin-bottom: 25px;
+}
+
+.finish-screen h2 {
+  font-size: 44px;
+}
+
+.finish-screen p:not(.eyebrow) {
+  color: var(--muted);
+
+  margin-bottom: 28px;
+}
+
+.finish-screen .primary-btn,
+.finish-screen .secondary-btn {
+  max-width: 330px;
+}
+
+
+/* ==================================================
+   📱 МОБИЛЬНЫЙ РЕЖИМ
+================================================== */
+
+@media (max-width: 750px) {
+
+  body {
+    min-height: 100dvh;
+  }
+
+  .app {
+    width: 100%;
+
+    padding:
+      28px
+      16px
+      40px;
+  }
+
+
+  /* Главная */
+
+  .hero {
+    margin-bottom: 35px;
+  }
+
+  h1 {
+    font-size: 42px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+  }
+
+
+  /* Units */
+
+  .unit-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap: 10px;
+  }
+
+  .unit-card {
+    min-height: 125px;
+
+    padding: 18px;
+
+    border-radius: 18px;
+  }
+
+  .unit-name {
+    font-size: 23px;
+
+    margin-top: 36px;
+  }
+
+
+  /* Modal */
+
+  .modal {
+    padding: 14px;
+  }
+
+  .modal-box {
+    width: 100%;
+
+    padding: 30px 22px;
+
+    border-radius: 24px;
+  }
+
+  .modal-box h2 {
+    font-size: 38px;
+  }
+
+
+  /* Верх тренажёра */
+
+  .trainer-top {
+    width: 100%;
+
+    padding:
+      max(
+        12px,
+        env(
+          safe-area-inset-top
+        )
+      )
+      14px
+      12px;
+
+    grid-template-columns:
+      62px
+      1fr
+      48px;
+
+    gap: 8px;
+  }
+
+  .back-btn {
+    font-size: 13px;
+
+    padding: 10px 0;
+  }
+
+  .score {
+    font-size: 14px;
+  }
+
+
+  /* Основная область */
+
+  .trainer-content {
+    min-height:
+      calc(
+        100dvh - 75px
+      );
+
+    margin-top: 0;
+
+    padding:
+      10px
+      14px
+      max(
+        25px,
+        env(
+          safe-area-inset-bottom
+        )
+      );
+
+    justify-content:
+      flex-start;
+  }
+
+  .type-label {
+    margin:
+      8px
+      0;
+
+    font-size: 11px;
+  }
+
+
+  /* Карточка */
+
+  .flashcard {
+    width: 100%;
+
+    height:
+      min(
+        53dvh,
+        370px
+      );
+
+    min-height: 260px;
+
+    margin:
+      8px
+      0
+      18px;
+  }
+
+  .card-face {
+    border-radius: 25px;
+
+    padding:
+      24px
+      18px;
+  }
+
+  .russian-word,
+  .english-word {
+    font-size:
+      clamp(
+        38px,
+        12vw,
+        62px
+      );
+
+    max-width: 95%;
+  }
+
+
+  /* Поле */
+
+  .answer-form {
+    width: 100%;
+
+    flex-direction: column;
+
+    gap: 9px;
+  }
+
+  .answer-form input {
+    width: 100%;
+
+    min-height: 56px;
+
+    border-radius: 16px;
+
+    padding: 16px;
+
+    font-size: 17px;
+  }
+
+  .answer-form button {
+    width: 100%;
+
+    min-height: 54px;
+
+    border-radius: 16px;
+
+    font-size: 16px;
+  }
+
+
+  /* Сообщение */
+
+  .feedback {
+    min-height: 28px;
+
+    margin-top: 8px;
+
+    font-size: 14px;
+  }
+
+
+  /* Далее */
+
+  .next-btn {
+    width: 100%;
+
+    min-height: 54px;
+
+    border-radius: 16px;
+
+    font-size: 16px;
+  }
+
+
+  /* Finish */
+
+  .finish-screen {
+    padding:
+      24px
+      18px
+      max(
+        25px,
+        env(
+          safe-area-inset-bottom
+        )
+      );
+  }
+
+  .finish-screen h2 {
+    font-size: 38px;
+  }
+}
+
+
+/* ==================================================
+   📱 ОЧЕНЬ МАЛЕНЬКИЕ ТЕЛЕФОНЫ
+================================================== */
+
+@media (max-width: 360px) {
+
+  .app {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .unit-grid {
+    gap: 8px;
+  }
+
+  .unit-card {
+    min-height: 112px;
+
+    padding: 15px;
+  }
+
+  .unit-name {
+    font-size: 21px;
+  }
+
+  .flashcard {
+    min-height: 245px;
+  }
+}
+
+/* =========================
+   РЕЗУЛЬТАТ
+========================= */
+
+#finishStats {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+#finishStats strong {
+  font-size: 32px;
+
+  color: var(--text);
+}
+
+.result-percent {
+  font-size: 22px;
+
+  font-weight: 900;
+
+  color: var(--accent);
+}
+
+.result-message {
+  max-width: 420px;
+
+  line-height: 1.5;
+
+  color: var(--muted);
+}
+
+
+/* Телефон */
+
+@media (max-width: 430px) {
+
+  #finishStats strong {
+    font-size: 28px;
+  }
+
+  .result-percent {
+    font-size: 20px;
+  }
+
+}

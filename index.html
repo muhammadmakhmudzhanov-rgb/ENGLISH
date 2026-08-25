@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>English Dictation Trainer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <main class="app">
+
+    <header class="hero">
+      <p class="eyebrow">ENGLISH TRAINER</p>
+      <h1>Диктант по словам</h1>
+      <p class="subtitle">
+        Выбери Unit и тренируй написание английских слов.
+      </p>
+    </header>
+
+    <section class="units">
+      <h2>Выбери Unit</h2>
+      <div id="unitGrid" class="unit-grid"></div>
+    </section>
+
+  </main>
+
+
+  <!-- ОКНО НАЧАЛА -->
+
+  <div id="startModal" class="modal hidden">
+
+    <div class="modal-box">
+
+      <button class="close-btn" id="closeModal">×</button>
+
+      <p class="eyebrow">ГОТОВ?</p>
+
+      <h2 id="modalTitle">Unit 1</h2>
+
+      <p id="modalInfo">
+        Сейчас начнётся диктант.
+      </p>
+
+      <button class="primary-btn" id="startBtn">
+        Начать
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- ТРЕНАЖЁР -->
+
+  <div id="trainer" class="trainer hidden">
+
+    <div class="trainer-top">
+
+      <button id="backBtn" class="back-btn">
+        ← Units
+      </button>
+
+      <div class="progress-wrap">
+
+        <span id="progressText">
+          1 / 10
+        </span>
+
+        <div class="progress-bar">
+          <div id="progressFill"></div>
+        </div>
+
+      </div>
+
+      <div class="score">
+        ✓ <span id="score">0</span>
+      </div>
+
+    </div>
+
+
+    <div class="trainer-content">
+
+      <p id="typeLabel" class="type-label">
+        Существительное
+      </p>
+
+
+      <!-- КАРТОЧКА -->
+
+      <div id="flashcard" class="flashcard">
+
+        <div class="card-inner">
+
+
+          <!-- ПЕРЕДНЯЯ СТОРОНА -->
+
+          <div class="card-face card-front">
+
+            <div
+              class="card-type"
+              id="cardType"
+            >
+              Существительное
+            </div>
+
+            <div
+              class="russian-word"
+              id="russianWord"
+            >
+              слово
+            </div>
+
+            <div class="card-help">
+              Напиши слово по-английски
+            </div>
+
+          </div>
+
+
+          <!-- ЗАДНЯЯ СТОРОНА -->
+
+          <div class="card-face card-back">
+
+            <div
+              class="correct-label"
+              id="resultLabel"
+            >
+              ✓ ПРАВИЛЬНО
+            </div>
+
+            <div
+              class="english-word"
+              id="englishWord"
+            >
+              word
+            </div>
+
+            <div
+              class="translation"
+              id="backTranslation"
+            >
+              слово
+            </div>
+
+            <!-- Что написал пользователь -->
+
+            <div
+              class="user-answer-shown"
+              id="userAnswerShown"
+            ></div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ВВОД -->
+
+      <form
+        id="answerForm"
+        class="answer-form"
+        autocomplete="off"
+      >
+
+        <input
+          id="answerInput"
+          type="text"
+          placeholder="Напиши английское слово..."
+          autocapitalize="none"
+          autocorrect="off"
+          spellcheck="false"
+          autocomplete="off"
+        >
+
+        <button type="submit">
+          Проверить
+        </button>
+
+      </form>
+
+
+      <!-- СООБЩЕНИЕ -->
+
+      <div
+        id="feedback"
+        class="feedback"
+      ></div>
+
+
+      <!-- ПОЯВЛЯЕТСЯ ТОЛЬКО ПОСЛЕ ОШИБКИ -->
+
+      <button
+        id="nextBtn"
+        class="next-btn hidden"
+      >
+        Далее →
+      </button>
+
+    </div>
+
+
+    <!-- ЭКРАН ЗАВЕРШЕНИЯ -->
+
+    <div
+      id="finishScreen"
+      class="finish-screen hidden"
+    >
+
+      <div class="finish-icon">
+        ✓
+      </div>
+
+      <p class="eyebrow">
+        UNIT ЗАКОНЧЕН
+      </p>
+
+      <h2 id="finishTitle">
+        Отличная работа!
+      </h2>
+
+      <p id="finishStats"></p>
+
+      <button
+        id="againBtn"
+        class="primary-btn"
+      >
+        Пройти ещё раз
+      </button>
+
+      <button
+        id="finishBackBtn"
+        class="secondary-btn"
+      >
+        Выбрать другой Unit
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <script src="script.js"></script>
+
+</body>
+</html>
