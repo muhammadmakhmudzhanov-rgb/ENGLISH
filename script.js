@@ -16,7 +16,7 @@
 
 const units = {
 
-  1: [
+  0: [
     { ru: "Введение", en: "Introduction", type: "noun" },
     { ru: "телефон", en: "(tele)phone", type: "noun" },
     { ru: "и", en: "and", type: "other" },
@@ -85,6 +85,11 @@ const units = {
     { ru: "изменение масштаба изображения", en: "zoom", type: "noun" }
   ],
 
+  1: [
+    { ru: "ответ", en: "answer", type: "noun" },
+    { ru: "спрашивать", en: "ask", type: "verb" },
+    { ru: "другой", en: "other", type: "adjective" }
+  ],
   2: [
     { ru: "ответ", en: "answer", type: "noun" },
     { ru: "спрашивать", en: "ask", type: "verb" },
@@ -344,17 +349,22 @@ function renderUnits() {
 
     button.className = "unit-card";
 
+    const unitName =
+      unitNumber === "0"
+        ? "Introduction"
+        : `Unit ${unitNumber}`;
+
     button.innerHTML = `
 
-      <span class="unit-number">
-        ENGLISH
-      </span>
+    <span class="unit-number">
+      ENGLISH
+    </span>
 
-      <span class="unit-name">
-        Unit ${unitNumber}
-      </span>
+<span class="unit-name">
+  ${unitName}
+</span>
 
-    `;
+  `;
 
     button.addEventListener(
       "click",
@@ -387,10 +397,9 @@ function openStartModal(unitNumber) {
     `Unit ${unitNumber}`;
 
   modalInfo.textContent =
-    `В этом Unit ${count} ${
-      count === 1
-        ? "слово"
-        : "слов"
+    `В этом Unit ${count} ${count === 1
+      ? "слово"
+      : "слов"
     }. Напиши английское слово для каждой карточки.`;
 
   startModal.classList.remove(
@@ -434,9 +443,9 @@ function shuffleCards(array) {
       array[i],
       array[randomIndex]
     ] = [
-      array[randomIndex],
-      array[i]
-    ];
+        array[randomIndex],
+        array[i]
+      ];
 
   }
 
@@ -547,7 +556,7 @@ function showCard() {
   document
     .querySelector(".card-front")
     .style.background =
-      typeColors[card.type];
+    typeColors[card.type];
 
 
   // Прогресс
