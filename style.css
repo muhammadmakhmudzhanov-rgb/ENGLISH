@@ -357,11 +357,13 @@ h2 {
 .back-btn {
   border: 0;
 
-  background: transparent;
+  background: rgb(112, 0, 0);
+  border-radius: 10%;
+  text-align: center;
 
-  color: var(--muted);
+  color: #fff;
 
-  text-align: left;
+  
 }
 
 .progress-wrap {
@@ -1161,4 +1163,19 @@ h2 {
     scroll-margin-bottom: 20px;
   }
 
+}
+/* Результат ответа */
+#flashcard.answer-correct {
+  border: 3px solid #22c55e;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+}
+
+#flashcard.answer-wrong {
+  border: 3px solid #ef4444;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+}
+
+/* Плавное появление рамки */
+#flashcard {
+  transition: border 0.2s ease, box-shadow 0.2s ease;
 }
