@@ -1447,3 +1447,76 @@ h2 {
   }
 
 }
+/* ==============================
+   ПОДСКАЗКА ПО ДВОЙНОМУ НАЖАТИЮ
+============================== */
+
+#answerHint {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  z-index: 50;
+
+  width: calc(100% - 40px);
+  max-width: 90%;
+
+  padding: 20px 24px;
+
+  border-radius: 18px;
+
+  background: rgba(10, 13, 18, 0.94);
+
+  color: #ffffff;
+
+  font-size: clamp(28px, 6vw, 48px);
+  font-weight: 900;
+
+  text-align: center;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+
+  box-shadow:
+    0 15px 50px rgba(0, 0, 0, 0.45);
+
+  border: 2px solid rgba(255, 255, 255, 0.15);
+
+  animation: hintAppear 0.15s ease-out;
+}
+
+#answerHint.hidden {
+  display: none !important;
+}
+
+@keyframes hintAppear {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+
+/* Телефон */
+
+@media (max-width: 750px) {
+
+  #answerHint {
+    width: calc(100% - 28px);
+
+    padding: 18px 14px;
+
+    font-size: clamp(24px, 8vw, 38px);
+
+    border-radius: 16px;
+  }
+
+}

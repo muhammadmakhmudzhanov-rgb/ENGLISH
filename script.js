@@ -2083,3 +2083,66 @@ startModal.addEventListener(
 // ==============================
 
 renderUnits();
+// ==============================
+// ПОДСКАЗКА ПО ДВОЙНОМУ НАЖАТИЮ
+// ==============================
+
+let hintTimer = null;
+let lastCardTap = 0;
+
+function showHint() {
+
+  // Если карточка уже проверена — подсказка не нужна
+  if (locked) {
+    return;
+  }
+
+  const correctAnswer =
+    cards[currentIndex]?.en;
+
+  if (!correctAnswer) {
+    return;
+  }
+
+  // Создаём подсказку один раз
+  let hint = document.getElementById("answerHint");
+
+  if (!hint) {
+    hint = document.createElement("div");
+    hint.id = "answerHint";
+
+    flashcard.appendChild(hint);
+  }
+
+  // Показываем правильный ответ
+  hint.textContent = correctAnswer;
+
+  hint.classList.remove("hidden");
+
+  // Если таймер уже был — сбрасываем его
+  clearTimeout(hintTimer);
+
+  // Убираем через 1.5 секунды
+  hintTimer = setTimeout(() => {
+    hint.classList.add("hidden");
+  }, 1500);
+}
+
+
+// Двойной клик мышкой
+flashcard.addEventListener("dblclick", showHint);
+
+
+// Двойное нажатие на телефоне
+flashcard.addEventListener("pointerup", () => {
+
+  const now = Date.now();
+
+  if (now - lastCardTap < 350) {
+    showHint();
+    lastCardTap = 0;
+  } else {
+    lastCardTap = now;
+  }
+
+});
