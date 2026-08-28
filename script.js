@@ -1229,12 +1229,77 @@ let locked = false;
 // ==============================
 
 function normalizeAnswer(text) {
-
   return text
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, " ");
 
+    // Убираем точки, вопросительные,
+    // восклицательные знаки и многоточия
+    .replace(/[.!?]+/g, "")
+
+    // Убираем лишние пробелы
+    .replace(/\s+/g, " ");
+}
+
+
+function isAnswerCorrect(userAnswer, correctAnswer) {
+
+  const user =
+    normalizeAnswer(userAnswer);
+
+  const correct =
+    normalizeAnswer(correctAnswer);
+
+
+  // =====================================
+  // 1. Полное совпадение
+  // =====================================
+
+  if (user === correct) {
+    return true;
+  }
+
+
+  // =====================================
+  // 2. Содержимое в скобках НЕОБЯЗАТЕЛЬНО
+  //
+  // (tele)phone
+  //
+  // telephone ✅
+  // phone     ✅
+  // =====================================
+
+  const withoutParentheses =
+    normalizeAnswer(
+      correct.replace(
+        /\s*\([^)]*\)/g,
+        ""
+      )
+    );
+
+  if (user === withoutParentheses) {
+    return true;
+  }
+
+
+  // =====================================
+  // 3. Убираем только скобки,
+  //    но оставляем текст внутри
+  //
+  // (tele)phone → telephone
+  // =====================================
+
+  const withoutBrackets =
+    normalizeAnswer(
+      correct.replace(/[()]/g, "")
+    );
+
+  if (user === withoutBrackets) {
+    return true;
+  }
+
+
+  return false;
 }
 
 
