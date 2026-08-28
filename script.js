@@ -2146,3 +2146,17 @@ flashcard.addEventListener("pointerup", () => {
   }
 
 });
+/* Запрещаем выделение текста */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+/* В поле ввода выделение должно работать */
+input,
+textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+}
