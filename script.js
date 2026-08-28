@@ -154,7 +154,7 @@ const units = {
   { "ru": "говорить", "en": "talk (to ...)", "type": "verb" },
   { "ru": "благодарить", "en": "thank", "type": "verb" },
   { "ru": "тот, та, то", "en": "that", "type": "pronoun" },
-  { "ru": "Это (Мария Джексон)", "en": "That's (Maria Jackson)", "type": "phrase" },
+  { "ru": "Это (Мария Джексон)", "en": "Thats (Maria Jackson)", "type": "phrase" },
   { "ru": "Нидерланды", "en": "the Netherlands", "type": "noun" },
   { "ru": "Соединенные Штаты", "en": "the United States (the US)", "type": "noun" },
   { "ru": "они", "en": "they", "type": "pronoun" },
