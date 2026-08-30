@@ -1207,6 +1207,13 @@ let score = 0;
 
 let locked = false;
 
+// Текущий режим: dictation / quiz / dialogue
+let trainerMode = "dictation";
+let quizOptions = [];
+let dialogueState = null;
+let currentModeScore = 0;
+let currentModeTotal = 0;
+
 
 // ==============================
 // ПРОВЕРКА ОТВЕТА
@@ -1415,22 +1422,43 @@ function openStartModal(unitNumber) {
 
   selectedUnit = unitNumber;
 
-  const count =
-    units[unitNumber].length;
+  const count = units[unitNumber].length;
+  const unitName = unitNumber === 0 ? "Introduction" : `Unit ${unitNumber}`;
 
-  modalTitle.textContent =
-    `Unit ${unitNumber}`;
-
+  modalTitle.textContent = unitName;
   modalInfo.textContent =
-    `В этом Unit ${count} ${count === 1
-      ? "слово"
-      : "слов"
-    }. Напиши английское слово для каждой карточки.`;
+    `Здесь ${count} слов. Выбери, как хочешь тренироваться.`;
 
-  startModal.classList.remove(
-    "hidden"
-  );
+  startBtn.classList.add("hidden");
 
+  let modeChooser = document.getElementById("modeChooser");
+
+  if (!modeChooser) {
+    modeChooser = document.createElement("div");
+    modeChooser.id = "modeChooser";
+    modeChooser.innerHTML = `
+      <button type="button" class="mode-choice" data-mode="dictation">
+        <span class="mode-icon">📝</span>
+        <span><b>Диктант</b><small>Напиши слово сам</small></span>
+      </button>
+      <button type="button" class="mode-choice" data-mode="quiz">
+        <span class="mode-icon">🎯</span>
+        <span><b>Опрос</b><small>Выбери правильный вариант</small></span>
+      </button>
+    `;
+
+    modeChooser.querySelectorAll("[data-mode]").forEach(button => {
+      button.addEventListener("click", () => {
+        trainerMode = button.dataset.mode;
+        startCurrentMode();
+      });
+    });
+
+    startBtn.parentElement.insertBefore(modeChooser, startBtn);
+  }
+
+  modeChooser.classList.remove("hidden");
+  startModal.classList.remove("hidden");
 }
 
 
@@ -1484,47 +1512,65 @@ function shuffleCards(array) {
 // ==============================
 
 function startTrainer() {
+  startCurrentMode();
+}
 
+function startCurrentMode() {
   closeStartModal();
 
+  const modeChooser = document.getElementById("modeChooser");
+  if (modeChooser) modeChooser.classList.add("hidden");
 
-  // Создаём копию,
-  // чтобы исходный Unit не менялся
-  cards = [
-    ...units[selectedUnit]
-  ];
+  const sourceWords =
+    trainerMode === "dialogue"
+      ? getLearnedWords(selectedUnit)
+      : [...(units[selectedUnit] || [])];
 
+  if (!sourceWords.length) return;
 
-  // Новый случайный порядок
-  // при каждом запуске
-  shuffleCards(cards);
+  cards = shuffleCards([...sourceWords]);
 
+  // Опрос теперь использует все доступные слова без ограничения в 20 вопросов.
+  // Диалоговые слова также остаются полностью доступными из накопленного набора.
 
   currentIndex = 0;
-
   score = 0;
-
+  currentModeScore = 0;
+  currentModeTotal = cards.length;
   locked = false;
+  dialogueState = null;
 
-
-  scoreEl.textContent =
-    score;
-
-
-  trainer.classList.remove(
-    "hidden"
-  );
-
-
-  finishScreen.classList.add(
-    "hidden"
-  );
-
-
+  scoreEl.textContent = "0";
+  trainer.classList.remove("hidden");
+  finishScreen.classList.add("hidden");
   resetTrainerView();
 
-  showCard();
+  if (trainerMode === "quiz") {
+    startQuizMode();
+  } else if (trainerMode === "dialogue") {
+    startDialogueMode();
+  } else {
+    showCard();
+  }
+}
 
+function getLearnedWords(unitNumber) {
+  const all = [];
+
+  for (let i = 0; i <= Number(unitNumber); i++) {
+    if (Array.isArray(units[i])) all.push(...units[i]);
+  }
+
+  const seen = new Set();
+
+  return all.filter(word => {
+    const key = `${normalizeAnswer(word.ru)}|||${normalizeAnswer(word.en)}`;
+
+    if (seen.has(key)) return false;
+
+    seen.add(key);
+    return true;
+  });
 }
 
 
@@ -1820,8 +1866,1272 @@ function nextCard() {
 
 
 // ==============================
-// ЗАВЕРШЕНИЕ UNIT
+// 🎯 ОПРОС — 4 ВАРИАНТА
 // ==============================
+
+let quizState = null;
+
+function startQuizMode() {
+  answerForm.classList.add("hidden");
+  flashcard.classList.add("hidden");
+  nextBtn.classList.add("hidden");
+  typeLabel.classList.add("hidden");
+
+  ensureQuizUI();
+
+  quizState = {
+    index: 0,
+    score: 0
+  };
+
+  showQuizQuestion();
+}
+
+function ensureQuizUI() {
+  let box = document.getElementById("quizModeBox");
+
+  if (box) {
+    box.classList.remove("hidden");
+    return box;
+  }
+
+  box = document.createElement("div");
+  box.id = "quizModeBox";
+
+  box.innerHTML = `
+    <div class="quiz-question-label" id="quizQuestionLabel"></div>
+    <div class="quiz-question" id="quizQuestion"></div>
+    <div class="quiz-options" id="quizOptions"></div>
+    <div class="quiz-feedback" id="quizFeedback"></div>
+  `;
+
+  trainer.appendChild(box);
+  injectInteractiveStyles();
+
+  return box;
+}
+
+function showQuizQuestion() {
+  if (!quizState || quizState.index >= cards.length) {
+    finishInteractiveMode("quiz");
+    return;
+  }
+
+  locked = false;
+
+  const card = cards[quizState.index];
+  const englishQuestion = Math.random() < 0.5;
+
+  const question = document.getElementById("quizQuestion");
+  const label = document.getElementById("quizQuestionLabel");
+  const optionsBox = document.getElementById("quizOptions");
+  const feedbackBox = document.getElementById("quizFeedback");
+
+  label.textContent = englishQuestion ? "🇬🇧 → 🇷🇺" : "🇷🇺 → 🇬🇧";
+  question.textContent = englishQuestion ? card.en : card.ru;
+
+  feedbackBox.textContent = "";
+  feedbackBox.className = "quiz-feedback";
+  optionsBox.innerHTML = "";
+
+  const correct = englishQuestion ? card.ru : card.en;
+
+  // Варианты берутся из того же набора и не повторяются в этом вопросе.
+  const pool = cards.filter((item, i) => i !== quizState.index);
+  const wrong = shuffleCards([...pool])
+    .slice(0, 3)
+    .map(item => englishQuestion ? item.ru : item.en);
+
+  quizOptions = shuffleCards([correct, ...wrong]);
+
+  quizOptions.forEach(option => {
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.className = "quiz-option";
+    button.textContent = option;
+
+    button.addEventListener("click", () => {
+      answerQuiz(option, correct, button);
+    });
+
+    optionsBox.appendChild(button);
+  });
+
+  progressText.textContent =
+    `${quizState.index + 1} / ${cards.length}`;
+
+  progressFill.style.width =
+    `${(quizState.index / cards.length) * 100}%`;
+
+  scoreEl.textContent = quizState.score;
+}
+
+function answerQuiz(selected, correct, clickedButton) {
+  if (locked) return;
+
+  locked = true;
+
+  const buttons =
+    document.querySelectorAll(
+      "#quizOptions .quiz-option"
+    );
+
+  const feedbackBox =
+    document.getElementById("quizFeedback");
+
+  const isCorrect =
+    normalizeAnswer(selected) ===
+    normalizeAnswer(correct);
+
+  buttons.forEach(button => {
+    button.disabled = true;
+  });
+
+  if (isCorrect) {
+
+    clickedButton.classList.add("correct");
+
+    quizState.score++;
+    score = quizState.score;
+
+    scoreEl.textContent = score;
+
+    feedbackBox.textContent =
+      "✓ Правильно!";
+
+    feedbackBox.className =
+      "quiz-feedback correct";
+
+    progressFill.style.width =
+      `${((quizState.index + 1) / cards.length) * 100}%`;
+
+    launchConfetti();
+
+    setTimeout(() => {
+      quizState.index++;
+      showQuizQuestion();
+    }, 700);
+
+  } else {
+
+    clickedButton.classList.add("wrong");
+
+    buttons.forEach(button => {
+      if (
+        normalizeAnswer(button.textContent) ===
+        normalizeAnswer(correct)
+      ) {
+        button.classList.add("correct");
+      }
+    });
+
+    feedbackBox.textContent =
+      `✕ Неправильно. Правильный ответ: ${correct}`;
+
+    feedbackBox.className =
+      "quiz-feedback wrong";
+
+    addInteractiveNext(
+      document.getElementById("quizModeBox"),
+      () => {
+        quizState.index++;
+        showQuizQuestion();
+      }
+    );
+  }
+}
+
+
+// ==============================
+// 💬 ДИАЛОГ — СЛУЧАЙНЫЙ КОНТЕКСТ
+//
+// Каждый новый вопрос строится заново.
+// В диалог попадают только слова из:
+// Introduction + все Units до выбранного Unit.
+// Например, в Unit 3 используются только
+// слова 0 + 1 + 2 + 3.
+// ==============================
+
+function startDialogueMode() {
+  answerForm.classList.add("hidden");
+  flashcard.classList.add("hidden");
+  nextBtn.classList.add("hidden");
+  typeLabel.classList.add("hidden");
+
+  ensureDialogueUI();
+
+  dialogueState = {
+    index: 0,
+    score: 0,
+    lastSignature: ""
+  };
+
+  showDialogue();
+}
+
+function ensureDialogueUI() {
+  let box =
+    document.getElementById("dialogueModeBox");
+
+  if (box) {
+    box.classList.remove("hidden");
+    return box;
+  }
+
+  box = document.createElement("div");
+  box.id = "dialogueModeBox";
+
+  box.innerHTML = `
+    <div class="dialogue-badge">💬 ДИАЛОГ</div>
+    <div class="dialogue-title" id="dialogueTitle"></div>
+    <div class="dialogue-text" id="dialogueText"></div>
+    <div class="dialogue-options" id="dialogueOptions"></div>
+    <div class="dialogue-feedback" id="dialogueFeedback"></div>
+  `;
+
+  trainer.appendChild(box);
+  injectInteractiveStyles();
+
+  return box;
+}
+
+function findLearned(learned, exact) {
+  const wanted = normalizeAnswer(exact);
+
+  return learned.find(item =>
+    normalizeAnswer(item.en) === wanted
+  );
+}
+
+function hasLearnedWord(learned, word) {
+  return Boolean(
+    learned.some(item =>
+      normalizeAnswer(item.en) === normalizeAnswer(word)
+    )
+  );
+}
+
+function getRandomLearned(learned, predicate = () => true) {
+  const pool = learned.filter(predicate);
+
+  if (!pool.length) return null;
+
+  return pool[
+    Math.floor(Math.random() * pool.length)
+  ];
+}
+
+function getDifferentRandom(array, blockedValue = "") {
+  if (!array.length) return null;
+
+  const filtered = array.filter(item => item !== blockedValue);
+  const pool = filtered.length ? filtered : array;
+
+  return pool[
+    Math.floor(Math.random() * pool.length)
+  ];
+}
+
+function learnedExactPool(learned, words) {
+  return words
+    .map(word => findLearned(learned, word))
+    .filter(Boolean);
+}
+
+function makeDialogueSignature(dialogue) {
+  return [
+    dialogue.title,
+    dialogue.answer,
+    ...dialogue.lines.map(line => line[1])
+  ].join("||");
+}
+
+function buildDialogue(target, learned) {
+  const answer = target?.en || "";
+  const answerNorm = normalizeAnswer(answer);
+
+  if (!answer) {
+    return {
+      title: "💬 Диалог",
+      lines: [["A", "Hello."], ["B", "OK."]],
+      answer
+    };
+  }
+
+  const has = word => hasLearnedWord(learned, word);
+  const is = (...words) => words.every(word => has(word));
+  const isTarget = (...words) =>
+    words.some(word => normalizeAnswer(word) === answerNorm);
+
+  const variants = [];
+  const add = (title, lines, requires = []) => {
+    if (requires.every(word => has(word))) {
+      variants.push({ title, lines, answer });
+    }
+  };
+
+  // =====================================================
+  // КАФЕ / ЕДА — простые естественные мини-диалоги
+  // =====================================================
+  const food = [
+    "coffee", "tea", "juice", "milk", "soda", "hamburger",
+    "cheeseburger", "hot dog", "sandwich", "pizza", "fries",
+    "salad", "cake", "pie", "fruit", "dessert", "chicken",
+    "tuna", "apple", "banana", "orange (n)", "cherry",
+    "tomato", "beverage", "food"
+  ];
+
+  if (isTarget(...food)) {
+    add("☕ В кафе", [
+      ["A", "Hello! Can I help you?"],
+      ["B", "Yes, please. [BLANK]."],
+      ["A", "Anything else?"],
+      ["B", "No, thank you."],
+      ["A", "Here you are."],
+      ["B", "Thanks."]
+    ], ["Hello.", "Can I help you?", "yes, please", "Anything else?", "No, thank you.", "Here you are.", "Thanks."]);
+
+    add("🍔 Заказ", [
+      ["A", "What would you like?"],
+      ["B", "[BLANK], please."],
+      ["A", "Anything else?"],
+      ["B", "No, thank you."],
+      ["A", "OK."],
+      ["B", "Thank you."]
+    ], ["please", "Anything else?", "No, thank you.", "OK.", "Thank you."]);
+
+    add("🥤 Что взять?", [
+      ["A", "Tea or coffee?"],
+      ["B", "[BLANK], please."],
+      ["A", "Here you are."],
+      ["B", "Thank you."],
+      ["A", "Have a nice day!"],
+      ["B", "Thanks."]
+    ], ["tea", "coffee", "please", "Here you are.", "Thank you.", "Have a nice day!", "Thanks."]);
+  }
+
+  // =====================================================
+  // МЕСТО / ПРЕДМЕТ — очень простые вопросы
+  // =====================================================
+  const placeWords = [
+    "bus stop", "street", "road", "city", "room", "office",
+    "restaurant", "cafe", "school", "hotel", "address", "place",
+    "window", "door", "station", "train station", "newsstand",
+    "platform", "ticket", "book", "dictionary", "pen", "pencil"
+  ];
+
+  if (isTarget(...placeWords) && is("where", "is")) {
+    add("📍 Где это?", [
+      ["A", "Excuse me. Where is the [BLANK]?"],
+      ["B", "It is here."],
+      ["A", "Oh, OK."],
+      ["B", "You're welcome."],
+      ["A", "Thank you."],
+      ["B", "You're welcome."]
+    ], ["where", "is", "Excuse me?", "It is here.", "OK.", "Thank you.", "You're welcome."]);
+
+    add("🗺️ В городе", [
+      ["A", "Where is the [BLANK]?"],
+      ["B", "It is over there."],
+      ["A", "Is it near?"],
+      ["B", "Yes."],
+      ["A", "Thank you."],
+      ["B", "You're welcome."]
+    ], ["where", "is", "over there", "yes", "Thank you.", "You're welcome."]);
+  }
+
+  // =====================================================
+  // ШКОЛА
+  // =====================================================
+  const schoolWords = [
+    "book", "dictionary", "pen", "pencil", "student", "teacher",
+    "exercise", "word", "sentence", "class", "school"
+  ];
+
+  if (isTarget(...schoolWords)) {
+    add("📚 На уроке", [
+      ["A", "Hello. Do you have a [BLANK]?"],
+      ["B", "Yes, I do."],
+      ["A", "Is it good?"],
+      ["B", "Yes."],
+      ["A", "OK. Thank you."],
+      ["B", "You're welcome."]
+    ], ["Hello.", "Do you have", "yes", "is", "good", "Thank you.", "You're welcome."]);
+
+    add("✏️ В классе", [
+      ["A", "What is this?"],
+      ["B", "This is my [BLANK]."],
+      ["A", "Is it good?"],
+      ["B", "Yes, very good."],
+      ["A", "Thank you."],
+      ["B", "You're welcome."]
+    ], ["what", "is", "this", "my", "good", "yes", "very good", "Thank you.", "You're welcome."]);
+  }
+
+  // =====================================================
+  // СТРАНЫ / ГОРОДА
+  // =====================================================
+  const countryWords = [
+    "Australia", "Brazil", "Canada", "China", "Egypt", "England",
+    "France", "Germany", "Greece", "Italy", "Japan", "Mexico",
+    "Russia", "Spain", "Sweden", "Switzerland", "Turkey",
+    "the Netherlands", "the United States (the US)", "Tokyo",
+    "San Francisco", "Las Vegas", "Los Angeles", "Hong Kong"
+  ];
+
+  if (isTarget(...countryWords) && is("where", "are", "you", "from")) {
+    add("🌍 Откуда ты?", [
+      ["A", "Hello. Where are you from?"],
+      ["B", "I am from [BLANK]."],
+      ["A", "Are you a student?"],
+      ["B", "Yes, I am."],
+      ["A", "Nice."],
+      ["B", "Thank you."]
+    ], ["Hello.", "where", "are", "you", "from", "I am", "student", "yes", "Nice.", "Thank you."]);
+
+    add("🗺️ Знакомство", [
+      ["A", "Where are you from?"],
+      ["B", "I am from [BLANK]."],
+      ["A", "Really?"],
+      ["B", "Yes."],
+      ["A", "That's nice."],
+      ["B", "Thank you."]
+    ], ["where", "are", "you", "from", "I am", "Really?", "yes", "Thank you."]);
+  }
+
+  // =====================================================
+  // ПРОФЕССИИ / ЛЮДИ
+  // =====================================================
+  const peopleWords = [
+    "boy", "girl", "man", "woman", "people", "student", "teacher",
+    "police officer", "doctor", "pilot", "engineer", "reporter",
+    "traveler", "computer specialist", "director"
+  ];
+
+  if (isTarget(...peopleWords)) {
+    add("👋 Знакомство", [
+      ["A", "Hello. Who is that?"],
+      ["B", "That is a [BLANK]."],
+      ["A", "Is he nice?"],
+      ["B", "Yes."],
+      ["A", "Good."],
+      ["B", "Thank you."]
+    ], ["Hello.", "Who is that?", "That", "is", "nice", "yes", "Good.", "Thank you."]);
+
+    add("👤 Кто это?", [
+      ["A", "Who is it?"],
+      ["B", "It is a [BLANK]."],
+      ["A", "Oh, I see."],
+      ["B", "Yes."],
+      ["A", "OK."],
+      ["B", "Thanks."]
+    ], ["Who is it?", "it", "is", "Oh", "yes", "OK.", "Thanks."]);
+  }
+
+  // =====================================================
+  // ГЛАГОЛЫ — короткие бытовые действия
+  // =====================================================
+  if (target.type === "verb") {
+    add("▶️ Простое действие", [
+      ["A", "Can you [BLANK]?"],
+      ["B", "Yes, I can."],
+      ["A", "Good."],
+      ["B", "OK."],
+      ["A", "Thank you."],
+      ["B", "You're welcome."]
+    ], ["can", "yes", "I", "Good.", "OK.", "Thank you.", "You're welcome."]);
+
+    add("💬 Разговор", [
+      ["A", "Please [BLANK]."],
+      ["B", "OK."],
+      ["A", "Thank you."],
+      ["B", "You're welcome."],
+      ["A", "Good."],
+      ["B", "Yes."]
+    ], ["please", "OK.", "Thank you.", "You're welcome.", "Good.", "yes"]);
+  }
+
+  // =====================================================
+  // ПРИЛАГАТЕЛЬНЫЕ — простое описание
+  // =====================================================
+  if (target.type === "adjective" && is("is", "it")) {
+    add("⭐ Описание", [
+      ["A", "Is it [BLANK]?"],
+      ["B", "Yes, it is."],
+      ["A", "Good."],
+      ["B", "Very good."],
+      ["A", "Thank you."],
+      ["B", "You're welcome."]
+    ], ["is", "it", "yes", "Good.", "Very good.", "Thank you.", "You're welcome."]);
+
+    add("✨ Какой он?", [
+      ["A", "What is it like?"],
+      ["B", "It is [BLANK]."],
+      ["A", "Really?"],
+      ["B", "Yes."],
+      ["A", "Good."],
+      ["B", "Thanks."]
+    ], ["what", "is", "it", "Really?", "yes", "Good.", "Thanks."]);
+  }
+
+  // =====================================================
+  // ЧИСЛА / ВРЕМЯ
+  // =====================================================
+  const numberWords = [
+    "Oh", "one", "two", "three", "four", "five", "six", "seven",
+    "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen",
+    "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty",
+    "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety",
+    "hundred", "thousand"
+  ];
+
+  if (isTarget(...numberWords)) {
+    add("🔢 Число", [
+      ["A", "What is the number?"],
+      ["B", "[BLANK]."],
+      ["A", "Thank you."],
+      ["B", "You're welcome."],
+      ["A", "OK."],
+      ["B", "Yes."]
+    ], ["what", "is", "the", "number", "Thank you.", "You're welcome.", "OK.", "yes"]);
+  }
+
+  // =====================================================
+  // ОБЫЧНЫЕ СУЩЕСТВИТЕЛЬНЫЕ — естественный базовый шаблон
+  // =====================================================
+  if (target.type === "noun") {
+    add("💬 Обычный разговор", [
+      ["A", "What is this?"],
+      ["B", "This is my [BLANK]."],
+      ["A", "Is it good?"],
+      ["B", "Yes, very good."],
+      ["A", "OK."],
+      ["B", "Thank you."]
+    ], ["what", "is", "this", "my", "good", "yes", "very good", "OK.", "Thank you."]);
+
+    if (is("where", "is", "my")) {
+      add("🏠 Где моя вещь?", [
+        ["A", "Where is my [BLANK]?"],
+        ["B", "It is here."],
+        ["A", "Thank you."],
+        ["B", "You're welcome."],
+        ["A", "OK."],
+        ["B", "Good."]
+      ], ["where", "is", "my", "It is here.", "Thank you.", "You're welcome.", "OK.", "Good."]);
+    }
+
+    if (is("have")) {
+      add("🎒 У тебя есть?", [
+        ["A", "Do you have a [BLANK]?"],
+        ["B", "Yes, I do."],
+        ["A", "Good."],
+        ["B", "Thank you."],
+        ["A", "OK."],
+        ["B", "Thanks."]
+      ], ["have", "you", "yes", "Good.", "Thank you.", "OK.", "Thanks."]);
+    }
+  }
+
+  // =====================================================
+  // ФРАЗЫ — используем саму фразу в естественной реплике
+  // =====================================================
+  if (target.type === "phrase") {
+    add("💬 В разговоре", [
+      ["A", "Hello."],
+      ["B", "[BLANK]"],
+      ["A", "OK."],
+      ["B", "Thank you."],
+      ["A", "Good."],
+      ["B", "Thanks."]
+    ], ["Hello.", "OK.", "Thank you.", "Good.", "Thanks."]);
+  }
+
+  // =====================================================
+  // FALLBACK — короткий, нормальный и простой
+  // =====================================================
+  if (!variants.length) {
+    variants.push({
+      title: "💬 Простой разговор",
+      lines: [
+        ["A", "Hello."],
+        ["B", "Hello."],
+        ["A", "What is this?"],
+        ["B", "This is [BLANK]."],
+        ["A", "Good."],
+        ["B", "Thank you."]
+      ],
+      answer
+    });
+  }
+
+  const lastSignature = dialogueState?.lastSignature || "";
+  const available = variants.filter(item =>
+    makeDialogueSignature(item) !== lastSignature
+  );
+
+  const pool = available.length ? available : variants;
+  const selected = pool[Math.floor(Math.random() * pool.length)];
+
+  dialogueState.lastSignature = makeDialogueSignature(selected);
+  dialogueState.lastAnswer = answer;
+
+  return selected;
+}
+
+function showDialogue() {
+
+  if (
+    !dialogueState ||
+    dialogueState.index >= cards.length
+  ) {
+    finishInteractiveMode("dialogue");
+    return;
+  }
+
+  locked = false;
+
+  const learned =
+    getLearnedWords(selectedUnit);
+
+  const target =
+    cards[dialogueState.index];
+
+  const dialogue =
+    buildDialogue(target, learned);
+
+  const title =
+    document.getElementById("dialogueTitle");
+
+  const text =
+    document.getElementById("dialogueText");
+
+  const options =
+    document.getElementById("dialogueOptions");
+
+  const feedbackBox =
+    document.getElementById("dialogueFeedback");
+
+  title.textContent =
+    dialogue.title;
+
+  feedbackBox.textContent = "";
+  feedbackBox.className =
+    "dialogue-feedback";
+
+  options.innerHTML = "";
+
+  text.innerHTML =
+    dialogue.lines.map(([speaker, line]) => {
+
+      const safe =
+        escapeHtml(line)
+          .replace(
+            "[BLANK]",
+            '<span class="dialogue-blank">?</span>'
+          );
+
+      return `
+        <div class="dialogue-line">
+          <b>${escapeHtml(speaker)}:</b>
+          <span>${safe}</span>
+        </div>
+      `;
+
+    }).join("");
+
+  const correct =
+    dialogue.answer;
+
+  const pool =
+    learned.filter(item =>
+      normalizeAnswer(item.en) !==
+      normalizeAnswer(correct)
+    );
+
+  const wrong =
+    shuffleCards([...pool])
+      .slice(0, 3)
+      .map(item => item.en);
+
+  const answers =
+    shuffleCards([correct, ...wrong]);
+
+  answers.forEach(answer => {
+
+    const button =
+      document.createElement("button");
+
+    button.type = "button";
+    button.className = "dialogue-option";
+    button.textContent = answer;
+
+    button.addEventListener(
+      "click",
+      () => {
+        answerDialogue(
+          answer,
+          correct,
+          button
+        );
+      }
+    );
+
+    options.appendChild(button);
+  });
+
+  progressText.textContent =
+    `${dialogueState.index + 1} / ${cards.length}`;
+
+  progressFill.style.width =
+    `${(dialogueState.index / cards.length) * 100}%`;
+
+  scoreEl.textContent =
+    dialogueState.score;
+}
+
+function answerDialogue(
+  selected,
+  correct,
+  clickedButton
+) {
+
+  if (locked) return;
+
+  locked = true;
+
+  const buttons =
+    document.querySelectorAll(
+      "#dialogueOptions .dialogue-option"
+    );
+
+  const feedbackBox =
+    document.getElementById(
+      "dialogueFeedback"
+    );
+
+  const isCorrect =
+    normalizeAnswer(selected) ===
+    normalizeAnswer(correct);
+
+  buttons.forEach(button => {
+    button.disabled = true;
+  });
+
+  const blank =
+    document.querySelector(
+      "#dialogueModeBox .dialogue-blank"
+    );
+
+  if (isCorrect) {
+
+    clickedButton.classList.add("correct");
+
+    if (blank) {
+      blank.textContent = selected;
+      blank.classList.add("filled");
+    }
+
+    dialogueState.score++;
+    score = dialogueState.score;
+
+    scoreEl.textContent = score;
+
+    feedbackBox.textContent =
+      "✓ Правильно!";
+
+    feedbackBox.className =
+      "dialogue-feedback correct";
+
+    progressFill.style.width =
+      `${((dialogueState.index + 1) / cards.length) * 100}%`;
+
+    launchConfetti();
+
+    setTimeout(() => {
+      dialogueState.index++;
+      showDialogue();
+    }, 850);
+
+  } else {
+
+    clickedButton.classList.add("wrong");
+
+    buttons.forEach(button => {
+
+      if (
+        normalizeAnswer(button.textContent) ===
+        normalizeAnswer(correct)
+      ) {
+        button.classList.add("correct");
+      }
+
+    });
+
+    if (blank) {
+      blank.textContent = correct;
+      blank.classList.add(
+        "filled",
+        "reveal"
+      );
+    }
+
+    feedbackBox.textContent =
+      `✕ Неправильно. Правильный ответ: ${correct}`;
+
+    feedbackBox.className =
+      "dialogue-feedback wrong";
+
+    addInteractiveNext(
+      document.getElementById(
+        "dialogueModeBox"
+      ),
+      () => {
+        dialogueState.index++;
+        showDialogue();
+      }
+    );
+  }
+}
+
+function addInteractiveNext(container, callback) {
+
+  const old =
+    container.querySelector(
+      ".interactive-next"
+    );
+
+  if (old) old.remove();
+
+  const next =
+    document.createElement("button");
+
+  next.type = "button";
+  next.className =
+    "interactive-next";
+
+  next.textContent =
+    "Далее →";
+
+  next.addEventListener(
+    "click",
+    () => {
+      next.remove();
+      callback();
+    }
+  );
+
+  container.appendChild(next);
+}
+
+function finishInteractiveMode(mode) {
+
+  const state =
+    mode === "quiz"
+      ? quizState
+      : dialogueState;
+
+  const total =
+    cards.length;
+
+  const result =
+    state ? state.score : 0;
+
+  const percentage =
+    total
+      ? Math.round(
+          (result / total) * 100
+        )
+      : 0;
+
+  const quizBox =
+    document.getElementById(
+      "quizModeBox"
+    );
+
+  const dialogueBox =
+    document.getElementById(
+      "dialogueModeBox"
+    );
+
+  if (quizBox)
+    quizBox.classList.add("hidden");
+
+  if (dialogueBox)
+    dialogueBox.classList.add("hidden");
+
+  answerForm.classList.add("hidden");
+  flashcard.classList.add("hidden");
+  typeLabel.classList.add("hidden");
+  nextBtn.classList.add("hidden");
+
+  let title =
+    "📚 Нужно повторить";
+
+  let message =
+    "Повтори слова и попробуй ещё раз.";
+
+  if (percentage >= 90) {
+    title = "🔥 Отлично!";
+    message =
+      "Ты очень хорошо справился!";
+  }
+  else if (percentage >= 70) {
+    title = "👍 Хорошо!";
+    message =
+      "Почти всё знаешь. Ещё немного практики!";
+  }
+  else if (percentage >= 50) {
+    title = "🙂 Неплохо!";
+    message =
+      "Основу уже знаешь, но некоторые слова стоит повторить.";
+  }
+
+  finishTitle.textContent =
+    title;
+
+  finishStats.innerHTML = `
+    <strong>${result} из ${total}</strong>
+    <span class="result-percent">${percentage}%</span>
+    <span class="result-message">${message}</span>
+  `;
+
+  finishScreen.classList.remove(
+    "hidden"
+  );
+}
+
+function escapeHtml(value) {
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function launchConfetti() {
+
+  const layer =
+    document.createElement("div");
+
+  layer.className =
+    "confetti-layer";
+
+  for (let i = 0; i < 28; i++) {
+
+    const piece =
+      document.createElement("i");
+
+    piece.style.setProperty(
+      "--x",
+      `${Math.random() * 100}%`
+    );
+
+    piece.style.setProperty(
+      "--r",
+      `${Math.random() * 360}deg`
+    );
+
+    piece.style.setProperty(
+      "--d",
+      `${500 + Math.random() * 500}ms`
+    );
+
+    piece.style.setProperty(
+      "--s",
+      `${5 + Math.random() * 6}px`
+    );
+
+    layer.appendChild(piece);
+  }
+
+  document.body.appendChild(layer);
+
+  setTimeout(
+    () => layer.remove(),
+    1200
+  );
+}
+
+function injectInteractiveStyles() {
+
+  if (
+    document.getElementById(
+      "interactiveModeStyles"
+    )
+  ) return;
+
+  const style =
+    document.createElement("style");
+
+  style.id =
+    "interactiveModeStyles";
+
+  style.textContent = `
+    #modeChooser{
+      display:grid;
+      gap:10px;
+      margin:18px 0;
+    }
+
+    .mode-choice{
+      width:100%;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      text-align:left;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:18px;
+      padding:14px 16px;
+      background:rgba(255,255,255,.06);
+      color:inherit;
+      cursor:pointer;
+      transition:.2s;
+    }
+
+    .mode-choice:hover{
+      transform:translateY(-2px);
+      border-color:rgba(255,255,255,.3);
+      background:rgba(255,255,255,.1);
+    }
+
+    .mode-icon{
+      font-size:28px;
+      line-height:1;
+    }
+
+    .mode-choice b,
+    .mode-choice small{
+      display:block;
+    }
+
+    .mode-choice small{
+      opacity:.65;
+      margin-top:3px;
+    }
+
+    #quizModeBox,
+    #dialogueModeBox{
+      width:min(720px,100%);
+      margin:18px auto;
+      padding:clamp(18px,4vw,30px);
+      border-radius:24px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.1);
+      box-sizing:border-box;
+    }
+
+    .quiz-question-label{
+      font-size:13px;
+      opacity:.6;
+      text-align:center;
+      margin-bottom:8px;
+    }
+
+    .quiz-question{
+      font-size:clamp(25px,6vw,42px);
+      font-weight:800;
+      text-align:center;
+      margin-bottom:22px;
+      overflow-wrap:anywhere;
+    }
+
+    .quiz-options,
+    .dialogue-options{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .quiz-option,
+    .dialogue-option{
+      min-height:58px;
+      border-radius:16px;
+      border:2px solid rgba(255,255,255,.1);
+      background:rgba(255,255,255,.07);
+      color:inherit;
+      font-size:17px;
+      font-weight:700;
+      padding:10px;
+      cursor:pointer;
+      overflow-wrap:anywhere;
+      transition:.18s;
+    }
+
+    .quiz-option:hover,
+    .dialogue-option:hover{
+      transform:translateY(-2px);
+      background:rgba(255,255,255,.11);
+    }
+
+    .quiz-option.correct,
+    .dialogue-option.correct{
+      border-color:#36d77a;
+      background:rgba(54,215,122,.18);
+    }
+
+    .quiz-option.wrong,
+    .dialogue-option.wrong{
+      border-color:#ff5d6c;
+      background:rgba(255,93,108,.18);
+    }
+
+    .quiz-feedback,
+    .dialogue-feedback{
+      text-align:center;
+      font-weight:800;
+      min-height:28px;
+      margin-top:15px;
+    }
+
+    .quiz-feedback.correct,
+    .dialogue-feedback.correct{
+      color:#36d77a;
+    }
+
+    .quiz-feedback.wrong,
+    .dialogue-feedback.wrong{
+      color:#ff7582;
+    }
+
+    .interactive-next{
+      display:block;
+      margin:15px auto 0;
+      border:0;
+      border-radius:14px;
+      padding:12px 24px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .dialogue-badge{
+      text-align:center;
+      font-size:12px;
+      font-weight:800;
+      opacity:.6;
+      letter-spacing:1px;
+    }
+
+    .dialogue-title{
+      text-align:center;
+      font-size:22px;
+      font-weight:800;
+      margin:7px 0 18px;
+    }
+
+    .dialogue-text{
+      display:grid;
+      gap:10px;
+      font-size:17px;
+      line-height:1.55;
+    }
+
+    .dialogue-line{
+      padding:10px 12px;
+      border-radius:13px;
+      background:rgba(255,255,255,.045);
+    }
+
+    .dialogue-line b{
+      margin-right:5px;
+    }
+
+    .dialogue-blank{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:72px;
+      padding:1px 8px;
+      border-bottom:3px solid currentColor;
+      font-weight:800;
+    }
+
+    .dialogue-blank.filled{
+      border-radius:7px;
+      background:rgba(54,215,122,.14);
+      border-bottom-color:#36d77a;
+    }
+
+    .dialogue-blank.reveal{
+      background:rgba(255,93,108,.14);
+      border-bottom-color:#ff7582;
+    }
+
+    .confetti-layer{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:99999;
+      overflow:hidden;
+    }
+
+    .confetti-layer i{
+      position:absolute;
+      left:var(--x);
+      top:38%;
+      width:var(--s);
+      height:calc(var(--s) * 1.7);
+      background:hsl(calc(360 * var(--x)),85%,60%);
+      border-radius:2px;
+      animation:
+        confettiFall
+        var(--d)
+        cubic-bezier(.2,.8,.4,1)
+        forwards;
+      transform:rotate(var(--r));
+    }
+
+    .confetti-layer i:nth-child(3n){
+      background:#ffd84d;
+    }
+
+    .confetti-layer i:nth-child(3n+1){
+      background:#55d9ff;
+    }
+
+    .confetti-layer i:nth-child(3n+2){
+      background:#ff6b8a;
+    }
+
+    @keyframes confettiFall{
+      to{
+        transform:
+          translate3d(
+            calc((var(--x) - 50%) * .8),
+            55vh,
+            0
+          )
+          rotate(720deg);
+        opacity:0;
+      }
+    }
+
+    @media(max-width:600px){
+      .quiz-options,
+      .dialogue-options{
+        grid-template-columns:1fr;
+      }
+
+      .quiz-option,
+      .dialogue-option{
+        min-height:54px;
+        font-size:16px;
+      }
+
+      .dialogue-text{
+        font-size:15px;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+}
+
+
+// ==============================
+// ЗАВЕРШЕНИЕ UNIT
 
 function finishTrainer() {
 
@@ -1932,6 +3242,18 @@ function finishTrainer() {
 
 function resetTrainerView() {
 
+  const quizBox =
+    document.getElementById("quizModeBox");
+
+  const dialogueBox =
+    document.getElementById("dialogueModeBox");
+
+  if (quizBox)
+    quizBox.classList.add("hidden");
+
+  if (dialogueBox)
+    dialogueBox.classList.add("hidden");
+
   answerForm.classList.remove(
     "hidden"
   );
@@ -1977,6 +3299,12 @@ function backToUnits() {
   );
 
   resetTrainerView();
+
+  const modeChooser =
+    document.getElementById("modeChooser");
+
+  if (modeChooser)
+    modeChooser.classList.add("hidden");
 
   selectedUnit = null;
 
@@ -2051,7 +3379,7 @@ againBtn.addEventListener(
 
     resetTrainerView();
 
-    startTrainer();
+    startCurrentMode();
 
   }
 );

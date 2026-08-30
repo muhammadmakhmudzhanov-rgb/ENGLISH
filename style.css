@@ -1,5 +1,12 @@
+
+/* =========================================================
+   ENGLISH DICTATION TRAINER
+   Полный CSS
+========================================================= */
+
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 :root {
@@ -20,12 +27,15 @@
   --green: #8be3ad;
 
   --white-card: #f5f7fb;
+
+  --correct: #36d77a;
+  --wrong: #ff5d6c;
 }
 
 
-/* =========================
+/* =========================================================
    ОСНОВА
-========================= */
+========================================================= */
 
 html {
   width: 100%;
@@ -56,27 +66,46 @@ body {
 
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-}
-html, body {
-  min-height: 100%;
-  overflow-y: auto; /* позволяет скроллить контент, когда открыта клавиатура */
+
+  overflow-y: auto;
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
 button {
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input,
+textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+}
+
+button,
+body,
+div,
+section {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.hidden {
+  display: none !important;
 }
 
 
-/* =========================
+/* =========================================================
    ГЛАВНАЯ
-========================= */
+========================================================= */
 
 .app {
   width: min(1100px, 92%);
@@ -135,9 +164,9 @@ h2 {
 }
 
 
-/* =========================
-   UNIT
-========================= */
+/* =========================================================
+   UNITS
+========================================================= */
 
 .unit-grid {
   display: grid;
@@ -185,17 +214,23 @@ h2 {
     0 15px 40px #0007;
 }
 
+.unit-card:active {
+  transform: scale(.98);
+}
+
 .unit-number {
   font-size: 13px;
 
-  color: green;
+  color: var(--green);
 
   font-weight: 800;
 }
 
 .unit-name {
   display: block;
-  color: rgb(255, 255, 255);
+
+  color: #fff;
+
   font-size: 28px;
 
   font-weight: 800;
@@ -204,9 +239,9 @@ h2 {
 }
 
 
-/* =========================
+/* =========================================================
    MODAL
-========================= */
+========================================================= */
 
 .modal {
   position: fixed;
@@ -276,12 +311,19 @@ h2 {
 
   width: 45px;
   height: 45px;
+
+  border-radius: 12px;
+}
+
+.close-btn:hover {
+  background: rgba(255,255,255,.06);
+  color: #fff;
 }
 
 
-/* =========================
+/* =========================================================
    КНОПКИ
-========================= */
+========================================================= */
 
 .primary-btn,
 .secondary-btn {
@@ -294,6 +336,10 @@ h2 {
   padding: 15px 20px;
 
   font-weight: 800;
+
+  transition:
+    transform .15s ease,
+    opacity .15s ease;
 }
 
 .primary-btn {
@@ -310,14 +356,20 @@ h2 {
   color: var(--text);
 }
 
-.hidden {
-  display: none !important;
+.primary-btn:hover,
+.secondary-btn:hover {
+  opacity: .9;
+}
+
+.primary-btn:active,
+.secondary-btn:active {
+  transform: scale(.98);
 }
 
 
-/* =========================
+/* =========================================================
    ТРЕНАЖЁР
-========================= */
+========================================================= */
 
 .trainer {
   position: fixed;
@@ -330,6 +382,11 @@ h2 {
 
   overflow-y: auto;
 }
+
+
+/* =========================================================
+   HEADER ТРЕНАЖЁРА
+========================================================= */
 
 .trainer-top {
   width:
@@ -357,13 +414,30 @@ h2 {
 .back-btn {
   border: 0;
 
-  background: rgb(112, 0, 0);
-  border-radius: 10%;
+  background:
+    rgb(112, 0, 0);
+
+  border-radius: 10px;
+
   text-align: center;
 
   color: #fff;
 
-  
+  padding: 11px 14px;
+
+  font-weight: 700;
+
+  transition:
+    transform .15s ease,
+    background .15s ease;
+}
+
+.back-btn:hover {
+  background: rgb(145, 0, 0);
+}
+
+.back-btn:active {
+  transform: scale(.96);
 }
 
 .progress-wrap {
@@ -410,9 +484,9 @@ h2 {
 }
 
 
-/* =========================
+/* =========================================================
    КОНТЕНТ
-========================= */
+========================================================= */
 
 .trainer-content {
   min-height:
@@ -426,11 +500,12 @@ h2 {
 
   align-items: center;
 
-  justify-content: center;
+  justify-content: flex-start;
 
-  padding: 20px;
-
-  margin-top: -40px;
+  padding:
+    20px
+    20px
+    60px;
 }
 
 .type-label {
@@ -443,28 +518,42 @@ h2 {
   text-transform: uppercase;
 
   letter-spacing: 1.5px;
+
+  margin-top: 8px;
 }
 
 
-/* =========================
+/* =========================================================
    КАРТОЧКА
-========================= */
+========================================================= */
 
 .flashcard {
+  position: relative;
+
   width:
     min(
-      560px,
-      90vw
+      620px,
+      92vw
     );
 
-  height: 350px;
+  height:
+    min(
+      430px,
+      58vh
+    );
+
+  min-height: 320px;
 
   perspective: 1200px;
 
   margin:
-    10px
+    12px
     0
-    25px;
+    22px;
+
+  transition:
+    border .2s ease,
+    box-shadow .2s ease;
 }
 
 .card-inner {
@@ -510,7 +599,9 @@ h2 {
 
   text-align: center;
 
-  padding: 30px;
+  padding: 34px 38px;
+
+  overflow: hidden;
 
   box-shadow:
     0 25px 70px #0008;
@@ -543,35 +634,59 @@ h2 {
   text-transform: uppercase;
 }
 
+.russian-word,
+.english-word {
+  width: 100%;
+
+  max-width: 100%;
+
+  max-height: 72%;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  overflow-wrap: anywhere;
+
+  word-break: normal;
+
+  line-height: 1.12;
+
+  padding: 4px 8px;
+
+  scrollbar-width: thin;
+}
+
 .russian-word {
   font-size:
     clamp(
-      38px,
-      7vw,
-      66px
+      30px,
+      5.2vw,
+      64px
     );
 
   font-weight: 900;
-
-  overflow-wrap: anywhere;
-}
-
-.card-help,
-.translation {
-  margin-top: 18px;
-
-  opacity: .6;
 }
 
 .english-word {
   font-size:
     clamp(
-      40px,
-      7vw,
-      68px
+      30px,
+      5.2vw,
+      64px
     );
 
   font-weight: 900;
+}
+
+.card-help,
+.translation {
+  max-width: 90%;
+
+  margin-top: 18px;
+
+  opacity: .6;
+
+  line-height: 1.45;
 
   overflow-wrap: anywhere;
 }
@@ -586,11 +701,6 @@ h2 {
   margin-bottom: 15px;
 }
 
-
-/* =========================
-   ОТВЕТ ПОЛЬЗОВАТЕЛЯ
-========================= */
-
 .user-answer-shown {
   margin-top: 16px;
 
@@ -602,19 +712,48 @@ h2 {
 
   max-width: 90%;
 
+  max-height: 70px;
+
+  overflow-y: auto;
+
   overflow-wrap: anywhere;
 }
 
 
-/* =========================
+/* =========================================================
+   РЕЗУЛЬТАТ ОТВЕТА
+========================================================= */
+
+#flashcard.answer-correct {
+  border:
+    3px solid
+    var(--correct);
+
+  box-shadow:
+    0 0 20px
+    rgba(54, 215, 122, .6);
+}
+
+#flashcard.answer-wrong {
+  border:
+    3px solid
+    var(--wrong);
+
+  box-shadow:
+    0 0 20px
+    rgba(255, 93, 108, .6);
+}
+
+
+/* =========================================================
    ПОЛЕ ОТВЕТА
-========================= */
+========================================================= */
 
 .answer-form {
   width:
     min(
-      560px,
-      90vw
+      620px,
+      92vw
     );
 
   display: flex;
@@ -641,11 +780,23 @@ h2 {
   padding: 16px;
 
   outline: none;
+
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.answer-form input::placeholder {
+  color: #687184;
 }
 
 .answer-form input:focus {
   border-color:
     var(--accent);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(110,168,255,.12);
 }
 
 .answer-form button {
@@ -663,12 +814,24 @@ h2 {
   color: #07101e;
 
   font-weight: 800;
+
+  transition:
+    transform .15s ease,
+    opacity .15s ease;
+}
+
+.answer-form button:hover {
+  opacity: .9;
+}
+
+.answer-form button:active {
+  transform: scale(.97);
 }
 
 
-/* =========================
-   СООБЩЕНИЕ
-========================= */
+/* =========================================================
+   FEEDBACK
+========================================================= */
 
 .feedback {
   min-height: 28px;
@@ -689,15 +852,15 @@ h2 {
 }
 
 
-/* =========================
+/* =========================================================
    КНОПКА ДАЛЕЕ
-========================= */
+========================================================= */
 
 .next-btn {
   width:
     min(
-      560px,
-      90vw
+      620px,
+      92vw
     );
 
   min-height: 54px;
@@ -718,7 +881,12 @@ h2 {
   font-size: 16px;
 
   transition:
-    transform .15s ease;
+    transform .15s ease,
+    opacity .15s ease;
+}
+
+.next-btn:hover {
+  opacity: .9;
 }
 
 .next-btn:active {
@@ -726,9 +894,9 @@ h2 {
 }
 
 
-/* =========================
-   ФИНИШ
-========================= */
+/* =========================================================
+   FINISH SCREEN
+========================================================= */
 
 .finish-screen {
   position: absolute;
@@ -747,7 +915,8 @@ h2 {
 
   padding: 25px;
 
-  background: var(--bg);
+  background:
+    var(--bg);
 }
 
 .finish-icon {
@@ -771,6 +940,8 @@ h2 {
 
 .finish-screen h2 {
   font-size: 44px;
+
+  margin-bottom: 15px;
 }
 
 .finish-screen p:not(.eyebrow) {
@@ -785,11 +956,680 @@ h2 {
 }
 
 
-/* ==================================================
-   📱 МОБИЛЬНЫЙ РЕЖИМ
-================================================== */
+/* =========================================================
+   РЕЗУЛЬТАТ
+========================================================= */
+
+#finishStats {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+#finishStats strong {
+  font-size: 32px;
+
+  color: var(--text);
+}
+
+.result-percent {
+  font-size: 22px;
+
+  font-weight: 900;
+
+  color: var(--accent);
+}
+
+.result-message {
+  max-width: 420px;
+
+  line-height: 1.5;
+
+  color: var(--muted);
+}
+
+
+/* =========================================================
+   MODE CHOOSER
+   Создаётся JavaScript
+========================================================= */
+
+#modeChooser {
+  width:
+    min(
+      620px,
+      100%
+    );
+
+  display: grid;
+
+  gap: 10px;
+
+  margin:
+    18px
+    0;
+}
+
+.mode-choice {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  text-align: left;
+
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+
+  border-radius: 18px;
+
+  padding:
+    14px
+    16px;
+
+  background:
+    rgba(255,255,255,.06);
+
+  color: inherit;
+
+  cursor: pointer;
+
+  transition:
+    transform .2s,
+    border-color .2s,
+    background .2s;
+}
+
+.mode-choice:hover {
+  transform:
+    translateY(-2px);
+
+  border-color:
+    rgba(255,255,255,.3);
+
+  background:
+    rgba(255,255,255,.1);
+}
+
+.mode-choice:active {
+  transform:
+    scale(.98);
+}
+
+.mode-icon {
+  font-size: 28px;
+
+  line-height: 1;
+}
+
+.mode-choice b,
+.mode-choice small {
+  display: block;
+}
+
+.mode-choice small {
+  opacity: .65;
+
+  margin-top: 3px;
+}
+
+
+/* =========================================================
+   QUIZ + DIALOGUE
+========================================================= */
+
+#quizModeBox,
+#dialogueModeBox {
+  width:
+    min(
+      720px,
+      100%
+    );
+
+  margin:
+    18px
+    auto;
+
+  padding:
+    clamp(
+      18px,
+      4vw,
+      30px
+    );
+
+  border-radius: 24px;
+
+  background:
+    rgba(255,255,255,.06);
+
+  border:
+    1px solid
+    rgba(255,255,255,.1);
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   QUIZ
+========================================================= */
+
+.quiz-question-label {
+  font-size: 13px;
+
+  opacity: .6;
+
+  text-align: center;
+
+  margin-bottom: 8px;
+}
+
+.quiz-question {
+  font-size:
+    clamp(
+      25px,
+      6vw,
+      42px
+    );
+
+  font-weight: 800;
+
+  text-align: center;
+
+  margin-bottom: 22px;
+
+  overflow-wrap: anywhere;
+}
+
+.quiz-options,
+.dialogue-options {
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    1fr;
+
+  gap: 12px;
+}
+
+.quiz-option,
+.dialogue-option {
+  min-height: 58px;
+
+  border-radius: 16px;
+
+  border:
+    2px solid
+    rgba(255,255,255,.1);
+
+  background:
+    rgba(255,255,255,.07);
+
+  color: inherit;
+
+  font-size: 17px;
+
+  font-weight: 700;
+
+  padding: 10px;
+
+  cursor: pointer;
+
+  overflow-wrap: anywhere;
+
+  transition:
+    transform .18s,
+    background .18s,
+    border-color .18s;
+}
+
+.quiz-option:hover,
+.dialogue-option:hover {
+  transform:
+    translateY(-2px);
+
+  background:
+    rgba(255,255,255,.11);
+}
+
+.quiz-option:active,
+.dialogue-option:active {
+  transform:
+    scale(.98);
+}
+
+.quiz-option:disabled,
+.dialogue-option:disabled {
+  cursor: default;
+  opacity: .9;
+}
+
+.quiz-option.correct,
+.dialogue-option.correct {
+  border-color:
+    var(--correct);
+
+  background:
+    rgba(54,215,122,.18);
+}
+
+.quiz-option.wrong,
+.dialogue-option.wrong {
+  border-color:
+    var(--wrong);
+
+  background:
+    rgba(255,93,108,.18);
+}
+
+
+/* =========================================================
+   QUIZ FEEDBACK
+========================================================= */
+
+.quiz-feedback,
+.dialogue-feedback {
+  text-align: center;
+
+  font-weight: 800;
+
+  min-height: 28px;
+
+  margin-top: 15px;
+}
+
+.quiz-feedback.correct,
+.dialogue-feedback.correct {
+  color:
+    var(--correct);
+}
+
+.quiz-feedback.wrong,
+.dialogue-feedback.wrong {
+  color:
+    #ff7582;
+}
+
+
+/* =========================================================
+   INTERACTIVE NEXT
+========================================================= */
+
+.interactive-next {
+  display: block;
+
+  margin:
+    15px
+    auto
+    0;
+
+  border: 0;
+
+  border-radius: 14px;
+
+  padding:
+    12px
+    24px;
+
+  background:
+    var(--white-card);
+
+  color: #111;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform .15s,
+    opacity .15s;
+}
+
+.interactive-next:hover {
+  opacity: .9;
+}
+
+.interactive-next:active {
+  transform: scale(.97);
+}
+
+
+/* =========================================================
+   DIALOGUE
+========================================================= */
+
+.dialogue-badge {
+  text-align: center;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  opacity: .6;
+
+  letter-spacing: 1px;
+}
+
+.dialogue-title {
+  text-align: center;
+
+  font-size: 22px;
+
+  font-weight: 800;
+
+  margin:
+    7px
+    0
+    18px;
+}
+
+.dialogue-text {
+  display: grid;
+
+  gap: 10px;
+
+  font-size: 17px;
+
+  line-height: 1.55;
+}
+
+.dialogue-line {
+  padding:
+    10px
+    12px;
+
+  border-radius: 13px;
+
+  background:
+    rgba(255,255,255,.045);
+}
+
+.dialogue-line b {
+  margin-right: 5px;
+}
+
+.dialogue-blank {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-width: 72px;
+
+  padding:
+    1px
+    8px;
+
+  border-bottom:
+    3px solid
+    currentColor;
+
+  font-weight: 800;
+}
+
+.dialogue-blank.filled {
+  border-radius: 7px;
+
+  background:
+    rgba(54,215,122,.14);
+
+  border-bottom-color:
+    var(--correct);
+}
+
+.dialogue-blank.reveal {
+  background:
+    rgba(255,93,108,.14);
+
+  border-bottom-color:
+    #ff7582;
+}
+
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+.confetti-layer {
+  position: fixed;
+
+  inset: 0;
+
+  pointer-events: none;
+
+  z-index: 99999;
+
+  overflow: hidden;
+}
+
+.confetti-layer i {
+  position: absolute;
+
+  left: var(--x);
+
+  top: 38%;
+
+  width: var(--s);
+
+  height:
+    calc(
+      var(--s) * 1.7
+    );
+
+  background:
+    hsl(
+      calc(360 * var(--x)),
+      85%,
+      60%
+    );
+
+  border-radius: 2px;
+
+  animation:
+    confettiFall
+    var(--d)
+    cubic-bezier(
+      .2,
+      .8,
+      .4,
+      1
+    )
+    forwards;
+
+  transform:
+    rotate(
+      var(--r)
+    );
+}
+
+.confetti-layer i:nth-child(3n) {
+  background: #ffd84d;
+}
+
+.confetti-layer i:nth-child(3n+1) {
+  background: #55d9ff;
+}
+
+.confetti-layer i:nth-child(3n+2) {
+  background: #ff6b8a;
+}
+
+@keyframes confettiFall {
+  to {
+    transform:
+      translate3d(
+        calc(
+          (var(--x) - 50%) * .8
+        ),
+        55vh,
+        0
+      )
+      rotate(720deg);
+
+    opacity: 0;
+  }
+}
+
+
+/* =========================================================
+   ПОДСКАЗКА ПО ДВОЙНОМУ НАЖАТИЮ
+========================================================= */
+
+#answerHint {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  transform:
+    translate(
+      -50%,
+      -50%
+    );
+
+  z-index: 50;
+
+  width:
+    calc(
+      100% - 40px
+    );
+
+  max-width: 90%;
+
+  padding:
+    20px
+    24px;
+
+  border-radius: 18px;
+
+  background:
+    rgba(
+      10,
+      13,
+      18,
+      .94
+    );
+
+  color: #fff;
+
+  font-size:
+    clamp(
+      28px,
+      6vw,
+      48px
+    );
+
+  font-weight: 900;
+
+  text-align: center;
+
+  overflow-wrap: anywhere;
+
+  word-break: break-word;
+
+  box-shadow:
+    0 15px 50px
+    rgba(
+      0,
+      0,
+      0,
+      .45
+    );
+
+  border:
+    2px solid
+    rgba(
+      255,
+      255,
+      255,
+      .15
+    );
+
+  animation:
+    hintAppear
+    .15s
+    ease-out;
+}
+
+#answerHint.hidden {
+  display: none !important;
+}
+
+@keyframes hintAppear {
+  from {
+    opacity: 0;
+
+    transform:
+      translate(
+        -50%,
+        -50%
+      )
+      scale(.9);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translate(
+        -50%,
+        -50%
+      )
+      scale(1);
+  }
+}
+
+
+/* =========================================================
+   DESKTOP
+========================================================= */
+
+@media (min-width: 751px) {
+
+  .trainer-content {
+    min-height:
+      calc(
+        100vh - 90px
+      );
+
+    margin-top: 0;
+
+    padding:
+      20px
+      20px
+      60px;
+
+    justify-content:
+      flex-start;
+  }
+
+  .type-label {
+    margin-top: 8px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
 
 @media (max-width: 750px) {
+
+  html,
+  body {
+    min-height: 100%;
+    overflow-y: auto;
+  }
 
   body {
     min-height: 100dvh;
@@ -826,7 +1666,10 @@ h2 {
     grid-template-columns:
       repeat(
         2,
-        minmax(0, 1fr)
+        minmax(
+          0,
+          1fr
+        )
       );
 
     gap: 10px;
@@ -856,7 +1699,9 @@ h2 {
   .modal-box {
     width: 100%;
 
-    padding: 30px 22px;
+    padding:
+      30px
+      22px;
 
     border-radius: 24px;
   }
@@ -866,9 +1711,23 @@ h2 {
   }
 
 
-  /* Верх тренажёра */
+  /* Header */
+
+  .trainer {
+    height: 100dvh;
+
+    min-height: 100dvh;
+
+    overflow: hidden;
+  }
 
   .trainer-top {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 20;
+
     width: 100%;
 
     padding:
@@ -887,12 +1746,25 @@ h2 {
       48px;
 
     gap: 8px;
+
+    background:
+      rgba(
+        11,
+        13,
+        18,
+        .94
+      );
+
+    backdrop-filter:
+      blur(12px);
   }
 
   .back-btn {
     font-size: 13px;
 
-    padding: 10px 0;
+    padding:
+      10px
+      0;
   }
 
   .score {
@@ -900,91 +1772,170 @@ h2 {
   }
 
 
-  /* Основная область */
-
-  /* Основная область */
+  /* Content */
 
   .trainer-content {
-    min-height: calc(100dvh - 75px);
-    position: sticky;
-    height: auto;
+    box-sizing: border-box;
 
-    margin-top: 0;
+    min-height:
+      calc(
+        100dvh - 74px
+      );
+
+    height:
+      calc(
+        100dvh - 74px
+      );
+
+    margin: 0;
 
     padding:
-      10px
-      14px
+      8px
+      12px
       max(
-        25px,
+        18px,
         env(
           safe-area-inset-bottom
         )
       );
 
-    justify-content: flex-start;
+    justify-content:
+      flex-start;
+
+    align-items: center;
 
     overflow-y: auto;
 
-    position: relative;
+    overflow-x: hidden;
+
+    overscroll-behavior-y: contain;
+
+    scroll-padding-bottom: 120px;
+
+    -webkit-overflow-scrolling:
+      touch;
   }
 
   .type-label {
-    margin:
-      8px
-      0;
+    flex-shrink: 0;
 
-    font-size: 11px;
+    margin:
+      4px
+      0
+      8px;
   }
 
 
-  /* Карточка */
-
-  /* Карточка */
+  /* Card */
 
   .flashcard {
-    width: 100%;
+    width:
+      min(
+        100%,
+        600px
+      );
 
-    height: 300px;
-    min-height: 300px;
-    max-height: 300px;
+    height:
+      clamp(
+        230px,
+        38dvh,
+        330px
+      );
+
+    min-height: 230px;
+
+    max-height: 330px;
 
     flex-shrink: 0;
 
     margin:
-      8px
+      4px
       0
-      18px;
+      14px;
+
+    transform:
+      translateZ(0);
   }
 
   .card-face {
-    border-radius: 25px;
-
     padding:
-      24px
-      18px;
+      28px
+      16px;
+
+    border-radius: 24px;
+  }
+
+  .card-type {
+    top: 18px;
+    left: 18px;
+
+    font-size: 10px;
   }
 
   .russian-word,
   .english-word {
+    width: 100%;
+
+    max-width: 100%;
+
+    max-height: 78%;
+
     font-size:
       clamp(
-        38px,
-        12vw,
-        62px
+        28px,
+        9vw,
+        52px
       );
 
-    max-width: 95%;
+    line-height: 1.08;
+
+    padding:
+      2px
+      5px;
+  }
+
+  .card-help,
+  .translation {
+    margin-top: 10px;
+
+    font-size: 13px;
   }
 
 
-  /* Поле */
+  /* Form */
 
   .answer-form {
-    width: 100%;
+    width:
+      min(
+        100%,
+        600px
+      );
 
     flex-direction: column;
 
-    gap: 9px;
+    gap: 8px;
+
+    flex-shrink: 0;
+
+    position: sticky;
+
+    bottom: 0;
+
+    z-index: 15;
+
+    padding:
+      8px
+      0
+      10px;
+
+    margin-top: 0;
+
+    background:
+      linear-gradient(
+        to bottom,
+        transparent,
+        var(--bg) 18%
+      );
   }
 
   .answer-form input {
@@ -992,11 +1943,19 @@ h2 {
 
     min-height: 56px;
 
+    font-size: 17px;
+
+    padding:
+      15px
+      16px;
+
     border-radius: 16px;
 
-    padding: 16px;
+    box-sizing: border-box;
 
-    font-size: 17px;
+    scroll-margin-top: 20px;
+
+    scroll-margin-bottom: 20px;
   }
 
   .answer-form button {
@@ -1004,29 +1963,35 @@ h2 {
 
     min-height: 54px;
 
-    border-radius: 16px;
-
     font-size: 16px;
+
+    border-radius: 16px;
   }
 
 
-  /* Сообщение */
+  /* Feedback */
 
   .feedback {
-    min-height: 28px;
+    flex-shrink: 0;
 
-    margin-top: 8px;
+    margin:
+      4px
+      0;
 
     font-size: 14px;
   }
 
 
-  /* Далее */
+  /* Next */
 
   .next-btn {
     width: 100%;
 
     min-height: 54px;
+
+    flex-shrink: 0;
+
+    margin-bottom: 8px;
 
     border-radius: 16px;
 
@@ -1051,17 +2016,142 @@ h2 {
   .finish-screen h2 {
     font-size: 38px;
   }
+
+
+  /* Quiz / Dialogue */
+
+  .quiz-options,
+  .dialogue-options {
+    grid-template-columns: 1fr;
+  }
+
+  .quiz-option,
+  .dialogue-option {
+    min-height: 54px;
+
+    font-size: 16px;
+  }
+
+  .dialogue-text {
+    font-size: 15px;
+  }
+
+
+  /* Hint */
+
+  #answerHint {
+    width:
+      calc(
+        100% - 28px
+      );
+
+    padding:
+      18px
+      14px;
+
+    font-size:
+      clamp(
+        24px,
+        8vw,
+        38px
+      );
+
+    border-radius: 16px;
+  }
+
 }
 
 
-/* ==================================================
-   📱 ОЧЕНЬ МАЛЕНЬКИЕ ТЕЛЕФОНЫ
-================================================== */
+/* =========================================================
+   SMALL PHONE
+========================================================= */
+
+@media (max-width: 430px) {
+
+  .trainer-top {
+    grid-template-columns:
+      64px
+      1fr
+      48px;
+
+    gap: 7px;
+
+    padding-left: 10px;
+
+    padding-right: 10px;
+  }
+
+  .back-btn {
+    font-size: 12px;
+
+    padding:
+      10px
+      4px;
+  }
+
+  .progress-wrap span {
+    font-size: 11px;
+  }
+
+  .flashcard {
+    height:
+      clamp(
+        220px,
+        36dvh,
+        285px
+      );
+
+    min-height: 220px;
+
+    max-height: 285px;
+  }
+
+  .card-face {
+    padding:
+      25px
+      13px;
+  }
+
+  .russian-word,
+  .english-word {
+    font-size:
+      clamp(
+        25px,
+        8.5vw,
+        44px
+      );
+
+    max-height: 80%;
+  }
+
+  .answer-form input {
+    min-height: 54px;
+  }
+
+  .answer-form button {
+    min-height: 52px;
+  }
+
+  #finishStats strong {
+    font-size: 28px;
+  }
+
+  .result-percent {
+    font-size: 20px;
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL PHONE
+========================================================= */
 
 @media (max-width: 360px) {
 
   .app {
     padding-left: 12px;
+
     padding-right: 12px;
   }
 
@@ -1079,455 +2169,77 @@ h2 {
     font-size: 21px;
   }
 
-  .flashcard {
-    min-height: 245px;
-  }
-}
-
-/* =========================
-   РЕЗУЛЬТАТ
-========================= */
-
-#finishStats {
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-
-  gap: 10px;
-}
-
-#finishStats strong {
-  font-size: 32px;
-
-  color: var(--text);
-}
-
-.result-percent {
-  font-size: 22px;
-
-  font-weight: 900;
-
-  color: var(--accent);
-}
-
-.result-message {
-  max-width: 420px;
-
-  line-height: 1.5;
-
-  color: var(--muted);
-}
-
-
-/* Телефон */
-
-@media (max-width: 430px) {
-
-  #finishStats strong {
-    font-size: 28px;
-  }
-
-  .result-percent {
-    font-size: 20px;
-  }
-
-}
-/* ==================================================
-   📱 ФИКС КЛАВИАТУРЫ
-================================================== */
-
-@media (max-width: 750px) {
-
-  .trainer {
-    overflow: hidden;
-  }
-
-  .trainer-content {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .flashcard {
-    flex-shrink: 0;
-    transform: translateZ(0);
-  }
-
-  .answer-form {
-    flex-shrink: 0;
-  }
-
-  .answer-form input {
-    scroll-margin-top: 20px;
-    scroll-margin-bottom: 20px;
-  }
-
-}
-/* Результат ответа */
-#flashcard.answer-correct {
-  border: 3px solid #22c55e;
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
-}
-
-#flashcard.answer-wrong {
-  border: 3px solid #ef4444;
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
-}
-
-/* Плавное появление рамки */
-#flashcard {
-  transition: border 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* ==================================================
-   ✨ ОБНОВЛЁННЫЙ ДИЗАЙН КАРТОЧКИ
-   Длинные слова/фразы больше не ломают карточку
-================================================== */
-
-.flashcard {
-  width: min(620px, 92vw);
-  height: min(430px, 58vh);
-  min-height: 320px;
-  margin: 12px 0 22px;
-}
-
-.card-face {
-  padding: 34px 38px;
-  overflow: hidden;
-}
-
-.russian-word,
-.english-word {
-  width: 100%;
-  max-width: 100%;
-  max-height: 72%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overflow-wrap: anywhere;
-  word-break: normal;
-  line-height: 1.12;
-  padding: 4px 8px;
-  scrollbar-width: thin;
-}
-
-.russian-word {
-  font-size: clamp(30px, 5.2vw, 64px);
-}
-
-.english-word {
-  font-size: clamp(30px, 5.2vw, 64px);
-}
-
-.card-help,
-.translation {
-  max-width: 90%;
-  line-height: 1.45;
-  overflow-wrap: anywhere;
-}
-
-.user-answer-shown {
-  max-height: 70px;
-  overflow-y: auto;
-  overflow-wrap: anywhere;
-}
-
-
-/* ==================================================
-   🖥️ ДЕСКТОП — КОНТЕНТ НЕ НАЛЕЗАЕТ НА HEADER
-================================================== */
-
-@media (min-width: 751px) {
-
-  .trainer-content {
-    min-height: calc(100vh - 90px);
-    margin-top: 0;
-    padding: 20px 20px 60px;
-    justify-content: flex-start;
-  }
-
-  .type-label {
-    margin-top: 8px;
-  }
-
-}
-
-
-/* ==================================================
-   📱 НОРМАЛЬНЫЙ МОБИЛЬНЫЙ ТРЕНАЖЁР
-================================================== */
-
-@media (max-width: 750px) {
-
-  .trainer {
-    height: 100dvh;
-    min-height: 100dvh;
-    overflow: hidden;
-  }
-
-  .trainer-top {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    background: rgba(11, 13, 18, .94);
-    backdrop-filter: blur(12px);
-  }
-
-  .trainer-content {
-    box-sizing: border-box;
-    min-height: calc(100dvh - 74px);
-    height: calc(100dvh - 74px);
-    margin: 0;
-    padding: 8px 12px max(18px, env(safe-area-inset-bottom));
-    justify-content: flex-start;
-    align-items: center;
-    overflow-y: auto;
-    overflow-x: hidden;
-    overscroll-behavior-y: contain;
-    scroll-padding-bottom: 120px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .type-label {
-    flex-shrink: 0;
-    margin: 4px 0 8px;
-  }
-
-  .flashcard {
-    width: min(100%, 600px);
-    height: clamp(230px, 38dvh, 330px);
-    min-height: 230px;
-    max-height: 330px;
-    flex-shrink: 0;
-    margin: 4px 0 14px;
-  }
-
-  .card-face {
-    padding: 28px 16px;
-    border-radius: 24px;
-  }
-
-  .card-type {
-    top: 18px;
-    left: 18px;
-    font-size: 10px;
-  }
-
-  .russian-word,
-  .english-word {
-    width: 100%;
-    max-width: 100%;
-    max-height: 78%;
-    font-size: clamp(28px, 9vw, 52px);
-    line-height: 1.08;
-    padding: 2px 5px;
-  }
-
-  .card-help,
-  .translation {
-    margin-top: 10px;
-    font-size: 13px;
-  }
-
-  /* Поле всегда удобно доступно пальцу */
-  .answer-form {
-    position: sticky;
-    bottom: 0;
-    z-index: 15;
-    width: min(100%, 600px);
-    flex-direction: column;
-    gap: 8px;
-    padding: 8px 0 10px;
-    margin-top: 0;
-    background:
-      linear-gradient(
-        to bottom,
-        transparent,
-        var(--bg) 18%
-      );
-  }
-
-  .answer-form input {
-    width: 100%;
-    min-height: 56px;
-    font-size: 17px;
-    padding: 15px 16px;
-    border-radius: 16px;
-    box-sizing: border-box;
-  }
-
-  .answer-form button {
-    width: 100%;
-    min-height: 54px;
-    font-size: 16px;
-    border-radius: 16px;
-  }
-
-  .feedback {
-    flex-shrink: 0;
-    margin: 4px 0;
-  }
-
-  .next-btn {
-    flex-shrink: 0;
-    margin-bottom: 8px;
-  }
-
-}
-
-
-/* ==================================================
-   📱 МАЛЕНЬКИЙ ТЕЛЕФОН
-================================================== */
-
-@media (max-width: 430px) {
-
-  .trainer-top {
-    grid-template-columns: 64px 1fr 48px;
-    gap: 7px;
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-
-  .back-btn {
-    font-size: 12px;
-    padding: 10px 4px;
-  }
-
-  .progress-wrap span {
-    font-size: 11px;
-  }
-
-  .flashcard {
-    height: clamp(220px, 36dvh, 285px);
-    min-height: 220px;
-    max-height: 285px;
-  }
-
-  .card-face {
-    padding: 25px 13px;
-  }
-
-  .russian-word,
-  .english-word {
-    font-size: clamp(25px, 8.5vw, 44px);
-    max-height: 80%;
-  }
-
-  .answer-form input {
-    min-height: 54px;
-  }
-
-  .answer-form button {
-    min-height: 52px;
-  }
-
-}
-
-
-/* ==================================================
-   📱 ОЧЕНЬ МАЛЕНЬКИЙ ЭКРАН
-================================================== */
-
-@media (max-width: 360px) {
-
   .trainer-content {
     padding-left: 9px;
+
     padding-right: 9px;
   }
 
   .flashcard {
     height: 220px;
+
     min-height: 220px;
   }
 
   .russian-word,
   .english-word {
-    font-size: clamp(23px, 8vw, 38px);
+    font-size:
+      clamp(
+        23px,
+        8vw,
+        38px
+      );
   }
 
 }
-/* ==============================
-   ПОДСКАЗКА ПО ДВОЙНОМУ НАЖАТИЮ
-============================== */
 
-#answerHint {
-  position: absolute;
 
-  left: 50%;
-  top: 50%;
+/* =========================================================
+   ДОПОЛНИТЕЛЬНАЯ ЗАЩИТА ОТ ПЕРЕПОЛНЕНИЯ
+========================================================= */
 
-  transform: translate(-50%, -50%);
-
-  z-index: 50;
-
-  width: calc(100% - 40px);
-  max-width: 90%;
-
-  padding: 20px 24px;
-
-  border-radius: 18px;
-
-  background: rgba(10, 13, 18, 0.94);
-
-  color: #ffffff;
-
-  font-size: clamp(28px, 6vw, 48px);
-  font-weight: 900;
-
-  text-align: center;
-
+.quiz-question,
+.dialogue-title,
+.dialogue-line,
+.feedback,
+.result-message,
+.finish-screen h2 {
   overflow-wrap: anywhere;
   word-break: break-word;
-
-  box-shadow:
-    0 15px 50px rgba(0, 0, 0, 0.45);
-
-  border: 2px solid rgba(255, 255, 255, 0.15);
-
-  animation: hintAppear 0.15s ease-out;
-}
-
-#answerHint.hidden {
-  display: none !important;
-}
-
-@keyframes hintAppear {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.9);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
 }
 
 
-/* Телефон */
+/* =========================================================
+   TOUCH
+========================================================= */
 
-@media (max-width: 750px) {
+@media (hover: none) {
 
-  #answerHint {
-    width: calc(100% - 28px);
-
-    padding: 18px 14px;
-
-    font-size: clamp(24px, 8vw, 38px);
-
-    border-radius: 16px;
+  .unit-card:hover,
+  .mode-choice:hover,
+  .quiz-option:hover,
+  .dialogue-option:hover,
+  .primary-btn:hover,
+  .secondary-btn:hover,
+  .next-btn:hover {
+    transform: none;
   }
 
 }
-* {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
-}
-input,
-textarea {
-  -webkit-user-select: text;
-  -moz-user-select: text;
-  user-select: text;
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+
 }
