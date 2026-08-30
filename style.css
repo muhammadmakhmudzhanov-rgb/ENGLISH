@@ -1147,6 +1147,10 @@ h2 {
   margin-bottom: 22px;
 
   overflow-wrap: anywhere;
+  color: #fff;
+    background-color: black;
+    padding: 10px;
+    border-radius: 12px;
 }
 
 .quiz-options,
