@@ -10,6 +10,189 @@
 */
 
 
+
+// ==============================
+// 🔊 ВЫБОР ГОЛОСА ДЛЯ ОЗВУЧКИ ОПРОСА
+// ==============================
+
+let speechVoices = [];
+let selectedSpeechVoice = null;
+
+function loadSpeechVoices() {
+  if (!('speechSynthesis' in window)) return;
+
+  speechVoices = speechSynthesis.getVoices().filter(voice =>
+    /^en(-|_)/i.test(voice.lang)
+  );
+
+  const select = document.getElementById('quizVoiceSelect');
+  if (!select) return;
+
+  const currentName = localStorage.getItem('quizSpeechVoice') || '';
+  select.innerHTML = '';
+
+  if (!speechVoices.length) {
+    const option = document.createElement('option');
+    option.textContent = 'Английские голоса не найдены';
+    option.disabled = true;
+    select.appendChild(option);
+    return;
+  }
+
+  speechVoices.forEach((voice, index) => {
+    const option = document.createElement('option');
+    const lang = voice.lang.toLowerCase();
+    const country = lang.includes('gb') ? '🇬🇧 English UK' :
+                    lang.includes('us') ? '🇺🇸 English US' :
+                    `🌐 ${voice.lang}`;
+
+    option.value = voice.name;
+    option.textContent = `${country} — ${voice.name}`;
+    select.appendChild(option);
+
+    if (voice.name === currentName) {
+      select.value = voice.name;
+    }
+  });
+
+  if (!select.value) {
+    const preferred = speechVoices.find(v => /en-GB/i.test(v.lang)) || speechVoices[0];
+    select.value = preferred.name;
+  }
+
+  selectedSpeechVoice = speechVoices.find(v => v.name === select.value) || speechVoices[0];
+}
+
+function createQuizVoiceSelector() {
+  if (document.getElementById('quizVoicePicker')) return;
+  if (!('speechSynthesis' in window)) return;
+
+  const box = document.createElement('div');
+  box.id = 'quizVoicePicker';
+  box.innerHTML = `
+    <div class="quiz-voice-heading">
+      <span class="quiz-voice-icon" aria-hidden="true">🔊</span>
+      <span>
+        <b>Голос озвучки</b>
+        <small>Выбери английский голос</small>
+      </span>
+    </div>
+    <div class="quiz-voice-controls">
+      <select id="quizVoiceSelect" aria-label="Выбор голоса озвучки"></select>
+      <button type="button" id="quizVoiceTest" class="quiz-voice-test" aria-label="Прослушать голос">▶</button>
+    </div>
+  `;
+
+  const quizBox = document.getElementById('quizModeBox');
+  if (quizBox) quizBox.prepend(box);
+
+  const select = document.getElementById('quizVoiceSelect');
+  const testButton = document.getElementById('quizVoiceTest');
+
+  select.addEventListener('change', () => {
+    selectedSpeechVoice = speechVoices.find(v => v.name === select.value) || null;
+    if (selectedSpeechVoice) {
+      localStorage.setItem('quizSpeechVoice', selectedSpeechVoice.name);
+    }
+  });
+
+  testButton.addEventListener('click', async () => {
+    const sample = cards?.[quizState?.index || 0]?.en || 'Hello, how are you?';
+    testButton.classList.add('is-playing');
+    await speakQuizWord(sample);
+    testButton.classList.remove('is-playing');
+  });
+
+  loadSpeechVoices();
+}
+
+function speakQuizWord(text) {
+  if (!('speechSynthesis' in window)) return Promise.resolve();
+
+  const cleanText = String(text)
+    .replace(/\([^)]*\)/g, '')
+    .trim();
+
+  if (!cleanText) return Promise.resolve();
+
+  return new Promise(resolve => {
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = selectedSpeechVoice?.lang || 'en-GB';
+    utterance.rate = 1.05;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    if (selectedSpeechVoice) {
+      utterance.voice = selectedSpeechVoice;
+    }
+
+    utterance.onend = resolve;
+    utterance.onerror = resolve;
+
+    speechSynthesis.speak(utterance);
+  });
+}
+
+if ('speechSynthesis' in window) {
+  speechSynthesis.addEventListener('voiceschanged', loadSpeechVoices);
+  loadSpeechVoices();
+}
+
+
+// ==============================
+// 🔔 ЗВУКИ ОТВЕТОВ — ЯРКИЕ И ПРИЯТНЫЕ
+// ==============================
+
+let answerAudioContext = null;
+
+function getAnswerAudioContext() {
+  if (!answerAudioContext) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return null;
+    answerAudioContext = new AudioCtx();
+  }
+  if (answerAudioContext.state === 'suspended') {
+    answerAudioContext.resume().catch(() => {});
+  }
+  return answerAudioContext;
+}
+
+function playTone(ctx, frequency, start, duration, type = 'sine', volume = 0.12) {
+  const oscillator = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(frequency, start);
+  gain.gain.setValueAtTime(0.0001, start);
+  gain.gain.exponentialRampToValueAtTime(volume, start + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+  oscillator.connect(gain);
+  gain.connect(ctx.destination);
+  oscillator.start(start);
+  oscillator.stop(start + duration + 0.025);
+}
+
+function playAnswerSound(isCorrect) {
+  const ctx = getAnswerAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime + 0.01;
+
+  if (isCorrect) {
+    // Два восходящих тона — короткий, но хорошо слышимый «ding»
+    playTone(ctx, 523.25, now, 0.15, 'sine', 0.14);
+    playTone(ctx, 783.99, now + 0.105, 0.22, 'sine', 0.16);
+  } else {
+    // Мягкий нисходящий сигнал ошибки, без резкого неприятного писка
+    playTone(ctx, 330, now, 0.16, 'triangle', 0.15);
+    playTone(ctx, 220, now + 0.10, 0.24, 'triangle', 0.13);
+  }
+}
+
+
 // ==============================
 // СЛОВА
 // ==============================
@@ -2056,6 +2239,8 @@ function showQuizQuestion() {
 
   locked = false;
 
+  createQuizVoiceSelector();
+
   const card = cards[quizState.index];
   const englishQuestion = Math.random() < 0.5;
 
@@ -2089,7 +2274,7 @@ function showQuizQuestion() {
     button.textContent = option;
 
     button.addEventListener("click", () => {
-      answerQuiz(option, correct, button, englishQuestion, card.en);
+      answerQuiz(option, correct, button, englishQuestion);
     });
 
     optionsBox.appendChild(button);
@@ -2104,77 +2289,12 @@ function showQuizQuestion() {
   scoreEl.textContent = quizState.score;
 }
 
-function playQuizCorrectSound() {
-  try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
-
-    const ctx = new AudioContext();
-    const now = ctx.currentTime;
-
-    // Короткий мягкий двухнотный звук правильного ответа.
-    // Сделан отдельно от озвучки слова, чтобы его можно было легко заменить.
-    const notes = [
-      { frequency: 659.25, start: 0, duration: 0.10 },
-      { frequency: 783.99, start: 0.085, duration: 0.15 }
-    ];
-
-    notes.forEach(({ frequency, start, duration }) => {
-      const oscillator = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      oscillator.type = "triangle";
-      oscillator.frequency.setValueAtTime(frequency, now + start);
-
-      gain.gain.setValueAtTime(0.0001, now + start);
-      gain.gain.exponentialRampToValueAtTime(0.075, now + start + 0.012);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + start + duration);
-
-      oscillator.connect(gain);
-      gain.connect(ctx.destination);
-
-      oscillator.start(now + start);
-      oscillator.stop(now + start + duration + 0.01);
-    });
-
-    setTimeout(() => {
-      ctx.close().catch(() => {});
-    }, 350);
-  } catch (error) {
-    // Если звук недоступен, просто продолжаем работу опроса.
-  }
-}
-
-function speakQuizWord(word, onFinished) {
-  if (!word || !('speechSynthesis' in window)) {
-    if (onFinished) onFinished();
-    return;
-  }
-
-  window.speechSynthesis.cancel();
-
-  const utterance = new SpeechSynthesisUtterance(String(word));
-  utterance.lang = "en-GB";
-  utterance.rate = 1.05;
-  utterance.pitch = 1;
-
-  // Следующий вопрос появляется только после полного окончания озвучки.
-  utterance.onend = () => {
-    if (onFinished) onFinished();
-  };
-
-  utterance.onerror = () => {
-    if (onFinished) onFinished();
-  };
-
-  window.speechSynthesis.speak(utterance);
-}
-
-
-function answerQuiz(selected, correct, clickedButton, englishQuestion, englishWord) {
+function answerQuiz(selected, correct, clickedButton, englishQuestion) {
   if (locked) return;
 
   locked = true;
+
+  const card = cards[quizState.index];
 
   const buttons =
     document.querySelectorAll(
@@ -2194,6 +2314,7 @@ function answerQuiz(selected, correct, clickedButton, englishQuestion, englishWo
 
   if (isCorrect) {
 
+    playAnswerSound(true);
     clickedButton.classList.add("correct");
 
     quizState.score++;
@@ -2207,23 +2328,22 @@ function answerQuiz(selected, correct, clickedButton, englishQuestion, englishWo
     feedbackBox.className =
       "quiz-feedback correct";
 
-    // 🔔 Короткий звук правильного ответа.
-    playQuizCorrectSound();
-
-    // 🔊 Произносим слово и только ПОСЛЕ окончания озвучки
-    // переходим к следующему вопросу.
-    speakQuizWord(englishQuestion ? englishWord : correct, () => {
-      quizState.index++;
-      showQuizQuestion();
-    });
-
     progressFill.style.width =
       `${((quizState.index + 1) / cards.length) * 100}%`;
 
     launchConfetti();
 
+    // Сначала произносим английское слово, затем переходим дальше.
+    const wordToSpeak = englishQuestion ? card.en : correct;
+
+    speakQuizWord(wordToSpeak).then(() => {
+      quizState.index++;
+      showQuizQuestion();
+    });
+
   } else {
 
+    playAnswerSound(false);
     clickedButton.classList.add("wrong");
 
     buttons.forEach(button => {
@@ -3119,6 +3239,34 @@ function injectInteractiveStyles() {
     .mode-choice small{
       opacity:.65;
       margin-top:3px;
+    }
+
+    #quizVoicePicker{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:16px;
+      padding:10px 12px;
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:14px;
+      background:rgba(255,255,255,.04);
+    }
+
+    #quizVoicePicker label{
+      font-size:13px;
+      opacity:.75;
+      white-space:nowrap;
+    }
+
+    #quizVoiceSelect{
+      flex:1;
+      min-width:0;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:10px;
+      padding:8px 10px;
+      background:rgba(0,0,0,.25);
+      color:inherit;
+      font:inherit;
     }
 
     #quizModeBox,
