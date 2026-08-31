@@ -2089,7 +2089,7 @@ function showQuizQuestion() {
     button.textContent = option;
 
     button.addEventListener("click", () => {
-      answerQuiz(option, correct, button);
+      answerQuiz(option, correct, button, englishQuestion, card.en);
     });
 
     optionsBox.appendChild(button);
@@ -2104,7 +2104,74 @@ function showQuizQuestion() {
   scoreEl.textContent = quizState.score;
 }
 
-function answerQuiz(selected, correct, clickedButton) {
+function playQuizCorrectSound() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+
+    const ctx = new AudioContext();
+    const now = ctx.currentTime;
+
+    // Короткий мягкий двухнотный звук правильного ответа.
+    // Сделан отдельно от озвучки слова, чтобы его можно было легко заменить.
+    const notes = [
+      { frequency: 659.25, start: 0, duration: 0.10 },
+      { frequency: 783.99, start: 0.085, duration: 0.15 }
+    ];
+
+    notes.forEach(({ frequency, start, duration }) => {
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      oscillator.type = "triangle";
+      oscillator.frequency.setValueAtTime(frequency, now + start);
+
+      gain.gain.setValueAtTime(0.0001, now + start);
+      gain.gain.exponentialRampToValueAtTime(0.075, now + start + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + start + duration);
+
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+
+      oscillator.start(now + start);
+      oscillator.stop(now + start + duration + 0.01);
+    });
+
+    setTimeout(() => {
+      ctx.close().catch(() => {});
+    }, 350);
+  } catch (error) {
+    // Если звук недоступен, просто продолжаем работу опроса.
+  }
+}
+
+function speakQuizWord(word, onFinished) {
+  if (!word || !('speechSynthesis' in window)) {
+    if (onFinished) onFinished();
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(String(word));
+  utterance.lang = "en-GB";
+  utterance.rate = 1.05;
+  utterance.pitch = 1;
+
+  // Следующий вопрос появляется только после полного окончания озвучки.
+  utterance.onend = () => {
+    if (onFinished) onFinished();
+  };
+
+  utterance.onerror = () => {
+    if (onFinished) onFinished();
+  };
+
+  window.speechSynthesis.speak(utterance);
+}
+
+
+function answerQuiz(selected, correct, clickedButton, englishQuestion, englishWord) {
   if (locked) return;
 
   locked = true;
@@ -2140,15 +2207,20 @@ function answerQuiz(selected, correct, clickedButton) {
     feedbackBox.className =
       "quiz-feedback correct";
 
+    // 🔔 Короткий звук правильного ответа.
+    playQuizCorrectSound();
+
+    // 🔊 Произносим слово и только ПОСЛЕ окончания озвучки
+    // переходим к следующему вопросу.
+    speakQuizWord(englishQuestion ? englishWord : correct, () => {
+      quizState.index++;
+      showQuizQuestion();
+    });
+
     progressFill.style.width =
       `${((quizState.index + 1) / cards.length) * 100}%`;
 
     launchConfetti();
-
-    setTimeout(() => {
-      quizState.index++;
-      showQuizQuestion();
-    }, 700);
 
   } else {
 
