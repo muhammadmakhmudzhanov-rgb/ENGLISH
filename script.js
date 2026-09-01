@@ -1524,6 +1524,10 @@ let cards = [];
 let currentIndex = 0;
 
 let score = 0;
+let retryQueue = [];
+let totalUnitWords = 0;
+let solvedWordKeys = new Set();
+let trainerRound = 1;
 
 let locked = false;
 
@@ -1855,6 +1859,10 @@ function startCurrentMode() {
 
   currentIndex = 0;
   score = 0;
+  retryQueue = [];
+  totalUnitWords = cards.length;
+  solvedWordKeys = new Set();
+  trainerRound = 1;
   currentModeScore = 0;
   currentModeTotal = cards.length;
   locked = false;
@@ -1952,7 +1960,9 @@ function showCard() {
 
   // Прогресс
   progressText.textContent =
-    `${currentIndex + 1} / ${cards.length}`;
+    trainerRound > 1
+      ? `Повтор ошибок: ${currentIndex + 1} / ${cards.length}`
+      : `${currentIndex + 1} / ${cards.length}`;
 
 
   progressFill.style.width =
@@ -2065,8 +2075,12 @@ function checkAnswer(event) {
 
     score++;
 
+    // Запоминаем слово как окончательно выученное.
+    const solvedKey = `${normalizeAnswer(cards[currentIndex].ru)}|||${normalizeAnswer(cards[currentIndex].en)}`;
+    solvedWordKeys.add(solvedKey);
+
     scoreEl.textContent =
-      score;
+      solvedWordKeys.size;
 
 
     feedback.textContent =
@@ -2149,6 +2163,14 @@ function checkAnswer(event) {
       "flipped"
     );
 
+    // Ошибочное слово уходит в очередь повторения.
+    // После окончания основного прохода будут показаны только ошибки.
+    const wrongKey = `${normalizeAnswer(cards[currentIndex].ru)}|||${normalizeAnswer(cards[currentIndex].en)}`;
+    if (!retryQueue.some(item =>
+      `${normalizeAnswer(item.ru)}|||${normalizeAnswer(item.en)}` === wrongKey
+    )) {
+      retryQueue.push(cards[currentIndex]);
+    }
 
     nextBtn.classList.remove(
       "hidden"
@@ -2168,20 +2190,23 @@ function nextCard() {
   currentIndex++;
 
 
-  if (
-    currentIndex >=
-    cards.length
-  ) {
-
-    finishTrainer();
-
+  if (currentIndex < cards.length) {
+    showCard();
     return;
-
   }
 
+  // Основной проход закончен. Если были ошибки —
+  // запускаем новый проход только по ошибочным словам.
+  if (retryQueue.length > 0) {
+    cards = shuffleCards([...retryQueue]);
+    retryQueue = [];
+    currentIndex = 0;
+    trainerRound++;
+    showCard();
+    return;
+  }
 
-  showCard();
-
+  finishTrainer();
 }
 
 
@@ -3113,7 +3138,7 @@ function finishInteractiveMode(mode) {
   else if (percentage >= 50) {
     title = "🙂 Неплохо!";
     message =
-      "Основу уже знаешь, но некоторые слова стоит повторить.";
+      "Все слова из ошибок нужно было повторить — теперь Unit проверен полностью.";
   }
 
   finishTitle.textContent =
@@ -3510,9 +3535,9 @@ function finishTrainer() {
 
 
   const percentage =
-    Math.round(
-      (score / cards.length) * 100
-    );
+    totalUnitWords > 0
+      ? Math.round((solvedWordKeys.size / totalUnitWords) * 100)
+      : 0;
 
 
   let title;
@@ -3530,7 +3555,9 @@ function finishTrainer() {
       "🔥 Отлично!";
 
     message =
-      "Ты очень хорошо знаешь эти слова!";
+      trainerRound > 1
+        ? "🔥 Отлично! Все ошибки исправлены."
+        : "Ты очень хорошо знаешь эти слова!";
 
   }
 
@@ -3540,7 +3567,9 @@ function finishTrainer() {
       "👍 Хорошо!";
 
     message =
-      "Почти всё знаешь. Ещё немного практики — и будет отлично!";
+      trainerRound > 1
+        ? "Все ошибки исправлены — теперь ты знаешь весь Unit!"
+        : "Почти всё знаешь. Ещё немного практики — и будет отлично!";
 
   }
 
@@ -3560,7 +3589,7 @@ function finishTrainer() {
       "📚 Нужно повторить";
 
     message =
-      "Пока запомнилось мало слов. Повтори Unit и попробуй ещё раз.";
+      "Некоторые слова ещё требуют практики, поэтому они повторялись, пока ты не ответил правильно.";
 
   }
 
@@ -3572,7 +3601,7 @@ function finishTrainer() {
   finishStats.innerHTML = `
 
     <strong>
-      ${score} из ${cards.length}
+      ${solvedWordKeys.size} из ${totalUnitWords}
     </strong>
 
     <span class="result-percent">
